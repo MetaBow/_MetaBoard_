@@ -2,12 +2,13 @@
 
 ### Main ICs
 
-- Micro: [nRF53240](https://www.nordicsemi.com/Products/nRF5340) in the MDBT53 module](https://www.raytac.com/download/index.php?index_id=60)
+- Micro: [nRF53240](https://www.nordicsemi.com/Products/nRF5340) in the [MDBT53 module](https://www.raytac.com/download/index.php?index_id=60)
 - PMIC (Power manangement IC): [nPM1100](https://www.nordicsemi.com/Products/nPM1100)
 - IMU: [BNO085](https://www.ceva-ip.com/wp-content/uploads/2019/10/BNO080_085-Datasheet.pdf)
 - Microphone: [MP34DT05-A](https://www.st.com/resource/en/datasheet/mp34dt05-a.pdf)
 - Capacitive Touch sensor: [IQS7222A001QNR](https://www.azoteq.com/images/stories/pdf/iqs7222a_datasheet.pdf)
 - Haptic Feedback driver: [DRV2605YZFR](https://www.ti.com/lit/ds/symlink/drv2605.pdf)
+
 
 ![WhatsApp Image 2024-11-21 at 10 35 25 PM](https://github.com/user-attachments/assets/1c10d5c2-fe00-4740-94f0-c228e55fa3ba)
 
