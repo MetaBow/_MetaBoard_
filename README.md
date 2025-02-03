@@ -1,4 +1,4 @@
-# The MetaBoard™
+# MetaBoard™
 
 ### Main ICs
 
@@ -31,9 +31,9 @@
 
 # Unboxing
 
-# The MetaBox
+# MetaBox
 
-# The MetaBoard Bridge
+# MetaBoard Bridge
 
 <img width="789" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/918e4926-ac1a-4210-9515-878ea0b32ec0" />
 <br>
