@@ -4,7 +4,7 @@ Specs and box opening instructions for MetaBoard users
 
 ## The MetaBoard
 
-# Main ICs
+### Main ICs
 
 - Micro: nRF5340 in the MDBT53 module [nRF53240](https://www.nordicsemi.com/Products/nRF5340), [MDBT53](https://www.raytac.com/download/index.php?index_id=60)
 - PMIC (Power manangement IC): [nPM1100](https://www.nordicsemi.com/Products/nPM1100)
@@ -13,7 +13,8 @@ Specs and box opening instructions for MetaBoard users
 - Capacitive Touch sensor: [IQS7222A001QNR](https://www.azoteq.com/images/stories/pdf/iqs7222a_datasheet.pdf)
 - Haptic Feedback driver: [DRV2605YZFR](https://www.ti.com/lit/ds/symlink/drv2605.pdf)
 
-# Inputs/Outputs
+### Inputs/Outputs
+
 - RGB Status LED
 - PWR LED (optional, requires solder bridge)
 - 2x Buttons
@@ -24,7 +25,8 @@ Specs and box opening instructions for MetaBoard users
 - 10 pin IDC programming port (optional)
 - 8 pin FPC connector for 5x touch inputs
 
-# Notes:
+### Notes:
+
 - The board includes a 10K NTC thermistor for instances where a battery is used that does not contain an NTC. If the battery includes an NTC, the trace MUST be cut (T_CUT).
 - The Power LED is unconnected. Solder the solder bridge next to QR code to enable.
 - The Device can be placed into a hardware sleep mode by bridging the two SLP test pads. This is also possible by toggling P0.05
