@@ -35,6 +35,10 @@
 
 # The MetaBoard Bridge
 
+<img width="789" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/918e4926-ac1a-4210-9515-878ea0b32ec0" />
+<br>
+<br>
+
 A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing real-time audio processing and recording capabilities.
 
 ###  Features
