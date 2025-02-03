@@ -1,7 +1,7 @@
 # MetaBoard_launch
 Specs and box opening instructions for MetaBoard users
 
-<table border="0" style="border: none; width: 100%;">
+<table border="0" style="border: none; width: full;">
   <tr>
     <td align="center">
       <img src="https://github.com/user-attachments/assets/278dc812-a913-4504-b4d8-a983cbce50e5" alt="WhatsApp Image 2024-11-21 at 10 35 25 PM" style="width:100%;" />
