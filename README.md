@@ -1,4 +1,4 @@
-# MetaBoard_launch
+# MetaBoard (c)
 Specs and box opening instructions for MetaBoard users
 
 
