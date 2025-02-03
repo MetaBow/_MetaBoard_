@@ -30,7 +30,8 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 
 1. Install dependencies:
 
-```pip install bleak python-osc numpy```
+```bash
+pip install bleak python-osc numpy```
 
 2. Run the application:
 ```bash
