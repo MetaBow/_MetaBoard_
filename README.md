@@ -28,17 +28,19 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 
 ### Quick Start
 
-1. Install dependencies:
+1. Install dependencies
+   
 ```pip install bleak python-osc numpy```
 
-2. Run the application:
+3. Run the application
+   
 ```python metabow_bridge.py```
 
-3. In the GUI:
-   - Add OSC destinations (specify ports)
-   - Scan and connect to Metabow devices
-   - Adjust audio processing settings if needed
-   - Start recording (optional)
+5. In the GUI:
+- **Add OSC destinations** (specify ports)
+- **Scan and connect** to Metabow devices
+- **Adjust audio** processing settings if needed
+- **Start recording** (optional)
 
 ### Technical Notes 
  
