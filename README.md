@@ -9,11 +9,11 @@ Specs and box opening instructions for MetaBoard users
 
 **The MetaBox**
 
-## The MetaBoard Bridge
+# The MetaBoard Bridge
 
 A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing real-time audio processing and recording capabilities.
 
-#  Features
+###  Features
 
 - **Device Management**: Connect to multiple Metabow devices simultaneously via Bluetooth LE
 - **Audio Processing**: Real-time audio capture and processing with configurable gain, noise gate, and noise reduction
@@ -21,12 +21,12 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 - **Recording**: Save processed audio as WAV files with timestamp-based naming
 - **Monitoring**: Real-time audio levels and latency monitoring via GUI
 
-# Requirements
+### Requirements
 
 - Python 3.x
 - Dependencies: `bleak`, `python-osc`, `numpy`, `tkinter`
 
-# Quick Start
+### Quick Start
 
 1. Install dependencies:
 ```bash
