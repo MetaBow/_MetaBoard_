@@ -29,6 +29,8 @@
 - The Power LED is unconnected. Solder the solder bridge next to QR code to enable.
 - The Device can be placed into a hardware sleep mode by bridging the two SLP test pads. This is also possible by toggling P0.05
 
+# Firmware
+
 # Unboxing
 
 # MetaBox
