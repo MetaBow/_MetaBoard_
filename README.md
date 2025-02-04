@@ -1,5 +1,7 @@
 # MetaBoard™
 
+[![Buy Now](https://github.com/user-attachments/assets/0c43f235-db9e-4589-929c-abc4d3690541)](https://www.paypal.com/ncp/payment/BA7CCF7549GLA)
+
 ### Main ICs
 
 - Micro: [nRF53240](https://www.nordicsemi.com/Products/nRF5340) in the [MDBT53](https://www.raytac.com/download/index.php?index_id=60) module
@@ -77,6 +79,3 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 - Optimized for MP34DT05-A PDM microphone
 - Bluetooth protocol: PCM audio + motion data (13 floats) + status flag
 - OSC messages: /metabow/pcm (audio) and /metabow/motion (sensor data)
-
-### Purchase
-[Paypal](https://www.paypal.com/ncp/payment/BA7CCF7549GLA)
