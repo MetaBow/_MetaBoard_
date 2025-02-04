@@ -1,0 +1,24 @@
+# Copyright (c) 2024, Diodes Delight
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    BNO085 and BNO086 are 9-axis Absolute Orientation Sensors
+    doing on device sensor fusion from CEVA.
+
+include: sensor-device.yaml
+
+compatible: "ceva,bno08x"
+
+properties:
+  irq-gpios:
+    type: phandle-array
+    description: |
+      Interrupt pin for the sensor. Mostly for SPI use.
+  wake-gpios:
+    type: phandle-array
+    description: |
+      PS2/Wake pin for SPI use
+  reset-gpios:
+    type: phandle-array
+    description: |
+      Reset pin

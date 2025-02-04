@@ -1,0 +1,6 @@
+menu "BNO08X"
+
+rsource "drivers/Kconfig"
+
+endmenu
+

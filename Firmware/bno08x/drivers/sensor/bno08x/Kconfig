@@ -1,0 +1,27 @@
+# BNO08X IMU configuration
+
+# Copyright (c) 2024 Diodes Delight
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig BNO08X
+	bool "BNO08X Inertial measurement unit"
+	default y
+	depends on DT_HAS_CEVA_BNO08X_ENABLED
+	select I2C if $(dt_compat_on_bus,$(DT_COMPAT_CEVA_BNO08X),i2c)
+	select SPI if $(dt_compat_on_bus,$(DT_COMPAT_CEVA_BNO08X),spi)
+	help
+	  Enable driver for BNO08X sensor fusion IMU
+
+if BNO08X
+
+config BNO08X_BUS_I2C
+	bool
+	default y
+	depends on $(dt_compat_on_bus,$(DT_COMPAT_CEVA_BNO08X),i2c)
+
+config BNO08X_BUS_SPI
+	bool
+	default y
+	depends on $(dt_compat_on_bus,$(DT_COMPAT_CEVA_BNO08X),spi)
+
+endif # BNO08X

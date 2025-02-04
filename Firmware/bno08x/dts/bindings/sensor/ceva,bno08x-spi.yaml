@@ -1,0 +1,10 @@
+# Copyright (c) 2024, Diodes Delight
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    BNO085 and BNO086 are 9-axis Absolute Orientation Sensors
+    doing on device sensor fusion from CEVA.
+
+compatible: "ceva,bno08x"
+
+include: ["spi-device.yaml", "ceva,bno08x.yaml"]
