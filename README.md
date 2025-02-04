@@ -72,4 +72,5 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 - Bluetooth protocol: PCM audio + motion data (13 floats) + status flag
 - OSC messages: /metabow/pcm (audio) and /metabow/motion (sensor data)
 
-
+### Purchase
+[Paypal](https://www.paypal.com/ncp/payment/BA7CCF7549GLA)
