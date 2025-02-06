@@ -34,7 +34,7 @@
 
 # Firmware
 
-Build with nRF Connect SDK 2.4.2 using the VSCode extension. The app is setup as a standalone application. Choose the 'nrf5340dk_nrf5340_cpuapp' board target and the 'metaboard.overlay' in your build settings to build for production hardware.
+Build with nRF Connect SDK 2.4.2 using the VSCode extension. The app is setup as a standalone application. Choose the ```nrf5340dk_nrf5340_cpuapp``` board target and the ```metaboard.overlay``` in your build settings to build for production hardware.
 
 Overlays for other targets provided but not recently tested. NEVER enable DCDC for metabow targets, it WILL brick the board.
 
