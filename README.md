@@ -12,7 +12,7 @@
 - Capacitive Touch sensor: [IQS7222A001QNR](https://www.azoteq.com/images/stories/pdf/iqs7222a_datasheet.pdf)
 - Haptic Feedback driver: [DRV2605YZFR](https://www.ti.com/lit/ds/symlink/drv2605.pdf)
 
-![_newWhatsApp Image 2024-11-21 at 10 35 25 PM](https://github.com/user-attachments/assets/9a10fdf9-13ec-481e-9714-1bcfbf9e873c)
+![_newWhatsApp Image 2024-11-21 at 10 35 25 PM](https://github.com/user-attachments/assets/a0e07bbb-69da-4184-be8f-96bc5452a5a3)
 
 ### Inputs/Outputs
 
