@@ -42,7 +42,8 @@ Overlays for other targets have been provided but not recently tested.
 
 The current firmware is designed to output 13 floating-point values via BLE: 4 values representing a quaternion and 3 values each for raw accelerometer, gyroscope, and magnetometer data. The firmware can be modified to stream additional sensor fusion values and support improved audio encoding. Firmware-level integration of the Touch IC and haptic transducer is still pending.
 
-# Unboxing
+<details>
+  <summary>#Unboxing Click to Expand</summary>
 
 https://github.com/user-attachments/assets/5d7addd9-e810-4c3d-97cc-f49c3b631e52
 
@@ -52,9 +53,12 @@ The MetaBoard Development Kit includes:
 - (1) LiPo Battery
 - (1) Magentic 4-pin Charger
 - (1) Touch IC Flexboard
-- (1) Haptic Capacitor 
+- (1) Haptic Capacitor
+</details>
 
-# MetaBox
+<details>
+  <summary># MetaBox Click to Expand</summary>
+</details>
 
 # MetaBoard Bridge
 
