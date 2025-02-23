@@ -58,7 +58,7 @@ The MetaBoard Development Kit includes:
 
 # MetaBoard Bridge
 
-<img width="789" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/d68e97e9-04f0-47c4-a3f2-478378f89a9d" />
+<img width="100%" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/d68e97e9-04f0-47c4-a3f2-478378f89a9d" />
 <br>
 <br>
 
