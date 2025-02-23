@@ -66,7 +66,7 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 
 A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, recording capabilities, and motion data routing.
 
-### Features
+### 1. Features
 
 - **Device Management**: Connect to multiple Metabow devices simultaneously via Bluetooth LE
 - **Audio Processing**: Real-time audio capture and processing with configurable gain, noise gate, and noise reduction
@@ -83,9 +83,9 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
   - Route discovery and monitoring
 - **Virtual Audio Output**: Integration with VB-Cable for virtual audio device routing (Note: This feature is currently in development and not fully functional)
 
-### Requirements
+### 2. Requirements
 
-#### Core Dependencies
+#### 2.1 Core Dependencies
 - `Python 3.x`
 - `bleak`
 - `python-osc`
@@ -94,36 +94,36 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 - `pyaudio`
 - `sounddevice`
 
-#### Optional Dependencies
+#### 2.2 Optional Dependencies
 - VB-Cable (for virtual audio routing - feature in development)
 
-### Quick Start
+### 3. Quick Start
 
 1. Install dependencies `pip install bleak python-osc numpy pyaudio sounddevice`
    
 3. Run the application ```python metabow_bridge.py```
 
 5. In the GUI:
-- **Add OSC destinations** (specify ports)
-- **Scan and connect** to Metabow devices
-- **Configure routing:**
-  
-  - Add individual routes for specific data
-  - Create bundles for combined messages
-  - Customize OSC paths as needed
+   
+   - **Add OSC destinations** (specify ports)
+   - **Scan and connect** to Metabow devices
+   - **Configure routing:**
+     - Add individual routes for specific data
+     - Create bundles for combined messages
+     - Customize OSC paths as needed
     
 - **Adjust audio** processing settings if needed
 - **Start recording** (optional)
 
-### Technical Notes 
+### 4. Technical Notes 
 
-**Audio System**
+**4.1 Audio System**
 
 - Optimized for MP34DT05-A PDM microphone
 - Configurable audio processing parameters
 - Real-time audio monitoring and statistics
 
-**Data Protocol**
+**4.2 Data Protocol**
 
 - Bluetooth protocol combines PCM audio data with motion data
 - Motion data includes 13 float values:
@@ -135,7 +135,7 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
     
 - Status flag for data validation
 
-**OSC Implementation**
+**4.3 OSC Implementation**
 
 - Flexible routing system with support for:
   
@@ -146,3 +146,28 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
     
 - Real-time route discovery and management
  
+### 5. GUI Sections
+**5.1 Bluetooth Devices**
+- Device scanning
+- Connection management
+
+**5.2 OSC Routing**
+
+- Destination management
+- Route configuration
+- Bundle creation
+
+**5.3 Audio Controls**
+
+- Processing parameters
+- Recording controls
+- Virtual output (in development)
+
+**5.4 Monitoring**
+
+- Audio levels
+- Latency metrics
+- System logs
+
+### 6. Contributing
+We welcome contributions! Please feel free to submit a Pull Request.
