@@ -40,6 +40,8 @@ Overlays for other targets provided but not recently tested.
 
 **NEVER** enable DCDC for metabow targets, it WILL brick the board.
 
+The current firmware is designed to output 13 floating-point values via BLE: 4 values representing a quaternion and 3 values each for raw accelerometer, gyroscope, and magnetometer data. The firmware can be modified to stream additional sensor fusion values and support improved audio encoding. Firmware-level integration of the Touch IC and haptic transducer is still pending.
+
 # Unboxing
 
 https://github.com/user-attachments/assets/5d7addd9-e810-4c3d-97cc-f49c3b631e52
