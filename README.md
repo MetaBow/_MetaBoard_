@@ -66,7 +66,7 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 
 A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, recording capabilities, and motion data routing.
 
-## Features
+### Features
 
 - **Device Management**: Connect to multiple Metabow devices simultaneously via Bluetooth LE
 - **Audio Processing**: Real-time audio capture and processing with configurable gain, noise gate, and noise reduction
@@ -83,10 +83,10 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
   - Route discovery and monitoring
 - **Virtual Audio Output**: Integration with VB-Cable for virtual audio device routing (Note: This feature is currently in development and not fully functional)
 
-## Requirements
+### Requirements
 
-### Core Dependencies
-- Python 3.x
+#### Core Dependencies
+- `Python 3.x`
 - `bleak`
 - `python-osc`
 - `numpy`
@@ -94,27 +94,55 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 - `pyaudio`
 - `sounddevice`
 
-### Optional Dependencies
+#### Optional Dependencies
 - VB-Cable (for virtual audio routing - feature in development)
 
-## Installation
-
-```bash
-pip install bleak python-osc numpy pyaudio sounddevice
 ### Quick Start
 
-1. Install dependencies ```pip install bleak python-osc numpy```
+1. Install dependencies `pip install bleak python-osc numpy pyaudio sounddevice`
    
 3. Run the application ```python metabow_bridge.py```
 
 5. In the GUI:
 - **Add OSC destinations** (specify ports)
 - **Scan and connect** to Metabow devices
+- **Configure routing:**
+  
+  - Add individual routes for specific data
+  - Create bundles for combined messages
+  - Customize OSC paths as needed
+    
 - **Adjust audio** processing settings if needed
 - **Start recording** (optional)
 
 ### Technical Notes 
- 
+
+**Audio System**
+
 - Optimized for MP34DT05-A PDM microphone
-- Bluetooth protocol: PCM audio + motion data (13 floats) + status flag
-- OSC messages: /metabow/pcm (audio) and /metabow/motion (sensor data)
+- Configurable audio processing parameters
+- Real-time audio monitoring and statistics
+
+**Data Protocol**
+
+- Bluetooth protocol combines PCM audio data with motion data
+- Motion data includes 13 float values:
+  
+  - Quaternion (i, j, k, r)
+  - Accelerometer (x, y, z)
+  - Gyroscope (x, y, z)
+  - Magnetometer (x, y, z)
+    
+- Status flag for data validation
+
+**OSC Implementation**
+
+- Flexible routing system with support for:
+  
+  - Individual routes (/metabow/audio, /metabow/motion/*)
+  - Custom path mapping
+  - Message bundling for combined data
+  - Multiple independent destinations
+    
+- Real-time route discovery and management
+ 
