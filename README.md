@@ -64,19 +64,43 @@ The MetaBoard Development Kit includes:
 
 A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing real-time audio processing and recording capabilities.
 
-###  Features
+A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, recording capabilities, and motion data routing.
 
-- **Device Management**: connect to multiple Metabow devices simultaneously via Bluetooth LE
-- **Audio Processing**: real-time audio capture and processing with configurable gain, noise gate, and noise reduction
-- **OSC Integration**: route processed audio and motion data to multiple OSC destinations
-- **Recording**: save processed audio as WAV files with timestamp-based naming
-- **Monitoring**: real-time audio levels and latency monitoring via GUI
+## Features
 
-### Requirements
+- **Device Management**: Connect to multiple Metabow devices simultaneously via Bluetooth LE
+- **Audio Processing**: Real-time audio capture and processing with configurable gain, noise gate, and noise reduction
+- **OSC Integration**: 
+  - Flexible routing system for audio and motion data
+  - Support for individual routes and bundled messages
+  - Customizable OSC paths and message bundling
+  - Multiple OSC destinations with independent routing configurations
+- **Recording**: WAV file recording with timestamp-based naming
+- **Monitoring**: 
+  - Real-time audio levels (peak and noise floor)
+  - Latency monitoring (average, peak, and buffer)
+  - Comprehensive logging system
+  - Route discovery and monitoring
+- **Virtual Audio Output**: Integration with VB-Cable for virtual audio device routing (Note: This feature is currently in development and not fully functional)
 
+## Requirements
+
+### Core Dependencies
 - Python 3.x
-- Dependencies: `bleak`, `python-osc`, `numpy`, `tkinter`
+- `bleak`
+- `python-osc`
+- `numpy`
+- `tkinter`
+- `pyaudio`
+- `sounddevice`
 
+### Optional Dependencies
+- VB-Cable (for virtual audio routing - feature in development)
+
+## Installation
+
+```bash
+pip install bleak python-osc numpy pyaudio sounddevice
 ### Quick Start
 
 1. Install dependencies ```pip install bleak python-osc numpy```
