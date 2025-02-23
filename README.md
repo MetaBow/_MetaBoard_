@@ -44,6 +44,14 @@ Overlays for other targets provided but not recently tested.
 
 https://github.com/user-attachments/assets/5d7addd9-e810-4c3d-97cc-f49c3b631e52
 
+The MetaBoard Development Kit includes:
+- (1) MetaBoard
+- (1) MetaBox
+- (1) LiPo Battery
+- (1) Magentic 4-pin Charger
+- (1) Touch IC Flexboard
+- (1) Haptic Capacitor 
+
 # MetaBox
 
 # MetaBoard Bridge
