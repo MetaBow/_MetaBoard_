@@ -108,12 +108,13 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
    - **Add OSC destinations** (specify ports)
    - **Scan and connect** to Metabow devices
    - **Configure routing:**
+     
      - Add individual routes for specific data
      - Create bundles for combined messages
      - Customize OSC paths as needed
-    
-- **Adjust audio** processing settings if needed
-- **Start recording** (optional)
+       
+   - **Adjust audio** processing settings if needed
+   - **Start recording** (optional)
 
 ### 4. Technical Notes 
 
