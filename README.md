@@ -68,8 +68,8 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 
 ### 1. Features
 
-- **Device Management**: Connect to multiple Metabow devices simultaneously via Bluetooth LE
-- **Audio Processing**: Real-time audio capture and processing with configurable gain, noise gate, and noise reduction
+- **Device Management**: connect to multiple Metabow devices simultaneously via Bluetooth LE
+- **Audio Processing**: real-time audio capture and processing with configurable gain, noise gate, and noise reduction
 - **OSC Integration**: 
   - Flexible routing system for audio and motion data
   - Support for individual routes and bundled messages
@@ -81,7 +81,7 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
   - Latency monitoring (average, peak, and buffer)
   - Comprehensive logging system
   - Route discovery and monitoring
-- **Virtual Audio Output**: Integration with VB-Cable for virtual audio device routing (Note: This feature is currently in development and not fully functional)
+- **Virtual Audio Output**: integration with VB-Cable for virtual audio device routing (Note: This feature is currently in development and not fully functional)
 
 ### 2. Requirements
 
