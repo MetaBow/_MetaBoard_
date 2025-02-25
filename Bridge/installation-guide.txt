@@ -1,0 +1,105 @@
+# Metabow OSC Bridge Installation Guide
+
+This guide will help you install all dependencies needed for the Metabow OSC Bridge application with Essentia feature extraction.
+
+## Prerequisites
+
+- Python 3.7 or newer
+- pip (Python package installer)
+- For Windows: Microsoft Visual C++ Build Tools might be required for certain packages
+- For macOS: Xcode Command Line Tools
+- For Linux: Basic development tools (build-essential, etc.)
+
+## Installation Steps
+
+### 1. Create a virtual environment (recommended)
+
+```bash
+# Create a virtual environment
+python -m venv metabow-env
+
+# Activate the virtual environment
+# On Windows:
+metabow-env\Scripts\activate
+# On macOS/Linux:
+source metabow-env/bin/activate
+```
+
+### 2. Install dependencies using requirements.txt
+
+```bash
+# Install all required packages
+pip install -r requirements.txt
+```
+
+### 3. Installing Essentia (if automatic installation fails)
+
+Essentia can sometimes be tricky to install depending on your operating system. If the automatic installation fails, here are platform-specific instructions:
+
+#### Windows
+
+```bash
+# Make sure you have Microsoft Visual C++ Build Tools installed
+pip install essentia-tensorflow
+```
+
+#### macOS
+
+```bash
+# Using Homebrew
+brew install essentia
+
+# Or using pip with additional flags
+pip install essentia --no-binary=essentia
+```
+
+#### Linux (Ubuntu/Debian)
+
+```bash
+# Install dependencies first
+sudo apt-get install build-essential libeigen3-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libavresample-dev
+
+# Then install essentia
+pip install essentia
+```
+
+### 4. Verifying Installation
+
+To verify that all dependencies are correctly installed, run:
+
+```python
+python -c "import essentia; import numpy; import bleak; import pythonosc; import pyaudio; import sounddevice; print('All dependencies are installed correctly!')"
+```
+
+If this command completes without errors, your environment is correctly set up.
+
+## Troubleshooting
+
+### PyAudio Installation Issues
+
+If you encounter issues installing PyAudio:
+
+#### Windows
+```bash
+pip install pipwin
+pipwin install pyaudio
+```
+
+#### macOS
+```bash
+brew install portaudio
+pip install pyaudio
+```
+
+#### Linux
+```bash
+sudo apt-get install python3-pyaudio
+```
+
+### Essentia-specific Issues
+
+If you encounter issues with Essentia, refer to their official documentation:
+https://essentia.upf.edu/documentation/installing.html
+
+For specific algorithms, check:
+https://essentia.upf.edu/algorithms_reference.html
