@@ -56,6 +56,9 @@ The MetaBoard Development Kit includes:
 
 # MetaBox
 
+![HOUSING AND PCB RENDER](https://github.com/user-attachments/assets/497891ab-6627-4302-81ac-182fc7bb1c6b)
+
+
 # MetaBoard Bridge
 
 <img width="100%" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/d68e97e9-04f0-47c4-a3f2-478378f89a9d" />
