@@ -59,8 +59,7 @@ The MetaBoard Development Kit includes:
 
 # MetaBox
 
-![HOUSING AND PCB RENDER](https://github.com/user-attachments/assets/497891ab-6627-4302-81ac-182fc7bb1c6b)
-
+![MetaBox-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/fb4cad53-14b2-437c-afcd-14f95e22bbc0)
 
 # MetaBoard Bridge
 
