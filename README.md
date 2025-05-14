@@ -188,7 +188,7 @@ We welcome contributions! Please feel free to submit a Pull Request.
 - Open the nRF Connect app on your mobile device
 - Scan and connect to your MetaBoard device
 - Select the DFU option
-- Choose the `dfu_application_metabow_ota.zip` file
+- Choose the `dfu_application_.zip` file
 - Follow the on-screen instructions to complete the update
 
 ### Verification
