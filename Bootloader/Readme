@@ -8,30 +8,21 @@ Programming hardware to perform initial firmware flashing
 MetaBow PCB board
 
 Initial Setup
-
 Flash the Base Firmware
-
 Erase the device memory completely
 Flash the merged_domains.hex file to your MetaBow board
 
-
-
 Performing OTA Updates
-
 Transfer Update Package
-
 Copy the dfu_application_metabow_ota.zip file to your mobile device
 
 
 Connect & Update
-
 Open the nRF Connect app on your mobile device
 Scan and connect to your MetaBow device
 Select the DFU option
 Choose the dfu_application_metabow_ota.zip file
 Follow the on-screen instructions to complete the update
-
-
 
 Verification
 After successful update, the device will advertise with a new name to confirm the firmware has been updated.
