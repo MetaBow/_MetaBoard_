@@ -180,10 +180,10 @@ We welcome contributions! Please feel free to submit a Pull Request.
 
 ### Performing OTA Updates
 
-- Transfer Update Package
+#### 2. Transfer Update Package
 - Copy the dfu_application_metabow_ota.zip file to your mobile device
 
-### Connect & Update
+#### 3. Connect & Update
 
 - Open the nRF Connect app on your mobile device
 - Scan and connect to your MetaBoard device
