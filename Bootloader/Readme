@@ -1,1 +1,49 @@
+MetaBow IMU: Bootloader & OTA Update Guide
+Overview
+This document provides instructions for the bootloader and Over-The-Air (OTA) update functionality for the MetaBow nRF-based IMU device. The bootloader enables wireless firmware updates using Nordic's DFU protocol.
+Prerequisites
 
+nRF Connect app installed on your mobile device
+Programming hardware to perform initial firmware flashing
+MetaBow PCB board
+
+Initial Setup
+
+Flash the Base Firmware
+
+Erase the device memory completely
+Flash the merged_domains.hex file to your MetaBow board
+
+
+
+Performing OTA Updates
+
+Transfer Update Package
+
+Copy the dfu_application_metabow_ota.zip file to your mobile device
+
+
+Connect & Update
+
+Open the nRF Connect app on your mobile device
+Scan and connect to your MetaBow device
+Select the DFU option
+Choose the dfu_application_metabow_ota.zip file
+Follow the on-screen instructions to complete the update
+
+
+
+Verification
+After successful update, the device will advertise with a new name to confirm the firmware has been updated.
+Reverting to Default Name
+To revert to the default MetaBow name:
+
+Perform another DFU update using the dfu_application_metabow.zip file
+
+Troubleshooting
+If you encounter any issues during the update process:
+
+Ensure the device is sufficiently charged
+Check that you're using the correct update package
+Verify the device is in range and has a stable connection
+Restart the nRF Connect app and try again
