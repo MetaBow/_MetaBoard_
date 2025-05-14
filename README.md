@@ -181,7 +181,7 @@ We welcome contributions! Please feel free to submit a Pull Request.
 ### Performing OTA Updates
 
 #### 2. Transfer Update Package
-- Copy the `dfu_application_metabow_ota.zip` file to your mobile device
+- Copy the `dfu_application.zip` file to your mobile device
 
 #### 3. Connect & Update
 
