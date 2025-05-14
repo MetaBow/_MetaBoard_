@@ -181,32 +181,32 @@ We welcome contributions! Please feel free to submit a Pull Request.
 ### Performing OTA Updates
 
 #### 2. Transfer Update Package
-- Copy the dfu_application_metabow_ota.zip file to your mobile device
+- Copy the `dfu_application_metabow_ota.zip` file to your mobile device
 
 #### 3. Connect & Update
 
 - Open the nRF Connect app on your mobile device
 - Scan and connect to your MetaBoard device
 - Select the DFU option
-- Choose the dfu_application_metabow_ota.zip file
+- Choose the `dfu_application_metabow_ota.zip` file
 - Follow the on-screen instructions to complete the update
 
-#### Verification
+### Verification
 After successful update, the device will advertise with a modified name to confirm the firmware has been updated.
-Reverting to Default Name
+
+### Reverting to Default Name
 To revert to the default MetaBow name:
+- Perform another DFU update using the dfu_application_metabow.zip file
 
-Perform another DFU update using the dfu_application_metabow.zip file
-
-Troubleshooting
+### Troubleshooting
 If you encounter any issues during the update process:
 
-Ensure the device is sufficiently charged
-Check that you're using the correct update package
-Verify the device is in range and has a stable connection
-Restart the nRF Connect app and try again
+- Ensure the device is sufficiently charged
+- Check that you're using the correct update package
+- Verify the device is in range and has a stable connection
+- Restart the nRF Connect app and try again
 
-Demo Video
+### Demo Video
 A demonstration video is available showing the complete update process using the nRF Connect app.
 
 Note: Remember that for initial programming, the board should be powered through the programming header, not through the USB magnetic connector. When using the nRF Connect SDK, ensure you're building with version 2.4.2 as specified in the main firmware documentation.
