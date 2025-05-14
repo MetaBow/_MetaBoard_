@@ -188,15 +188,8 @@ We welcome contributions! Please feel free to submit a Pull Request.
 - Open the nRF Connect app on your mobile device
 - Scan and connect to your MetaBoard device
 - Select the DFU option
-- Choose the `dfu_application_.zip` file
+- Choose the `dfu_application.zip` file
 - Follow the on-screen instructions to complete the update
-
-### Verification
-After successful update, the device will advertise with a modified name to confirm the firmware has been updated.
-
-### Reverting to Default Name
-To revert to the default MetaBow name:
-- Perform another DFU update using the dfu_application_metabow.zip file
 
 ### Troubleshooting
 If you encounter any issues during the update process:
