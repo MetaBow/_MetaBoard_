@@ -166,36 +166,32 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 We welcome contributions! Please feel free to submit a Pull Request.
 
 # Bootloading
-## Prerequisites
+### Prerequisites
 
 - snRF Connect app installed on your mobile device
 - Programming hardware for initial firmware flashing
 - MetaBoard PCB
   
-## Initial Setup
+### Initial Setup
 
 - Flash the Base Firmware
 - Erase the device memory completely
 - Flash the `merged_domains.hex` file to your MetaBoard
 
-Performing OTA Updates
+### Performing OTA Updates
 
-Transfer Update Package
+- Transfer Update Package
+- Copy the dfu_application_metabow_ota.zip file to your mobile device
 
-Copy the dfu_application_metabow_ota.zip file to your mobile device
+### Connect & Update
 
+- Open the nRF Connect app on your mobile device
+- Scan and connect to your MetaBoard device
+- Select the DFU option
+- Choose the dfu_application_metabow_ota.zip file
+- Follow the on-screen instructions to complete the update
 
-Connect & Update
-
-Open the nRF Connect app on your mobile device
-Scan and connect to your MetaBoard device
-Select the DFU option
-Choose the dfu_application_metabow_ota.zip file
-Follow the on-screen instructions to complete the update
-
-
-
-Verification
+#### Verification
 After successful update, the device will advertise with a modified name to confirm the firmware has been updated.
 Reverting to Default Name
 To revert to the default MetaBow name:
