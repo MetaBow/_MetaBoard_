@@ -174,7 +174,7 @@ We welcome contributions! Please feel free to submit a Pull Request.
   
 ### Initial Setup
 
-- Flash the Base Firmware
+#### 1. Flash the Base Firmware
 - Erase the device memory completely
 - Flash the `merged_domains.hex` file to your MetaBoard
 
