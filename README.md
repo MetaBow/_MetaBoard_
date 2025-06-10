@@ -20,7 +20,7 @@
 ### Inputs/Outputs
 
 - RGB Status LED
-- PWR LED (optional, requires solder bridge)
+- PWR/SOC LED
 - 2x Programmable Buttons
 - Wake, RST, and Sleep Buttons
 - Magnetic USB connector
