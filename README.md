@@ -21,9 +21,8 @@
 
 - RGB Status LED
 - PWR LED (optional, requires solder bridge)
-- 2x Buttons
-- Wake Button
-- Sleep trigger (only available as test pad for production use)
+- 2x Programmable Buttons
+- Wake, RST, and Sleep Buttons
 - Magnetic USB connector
 - Tag-Connect Programming power
 - 10 pin IDC programming port (optional)
