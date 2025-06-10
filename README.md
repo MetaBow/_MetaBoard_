@@ -61,109 +61,229 @@ The MetaBoard Development Kit includes:
 
 ![MetaBox-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/fb4cad53-14b2-437c-afcd-14f95e22bbc0)
 
+
 # MetaBoard Bridge
 
 <img width="100%" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/d68e97e9-04f0-47c4-a3f2-478378f89a9d" />
-<br>
-<br>
 
-A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing real-time audio processing and recording capabilities.
+A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, motion data routing, real-time feature extraction, and advanced IMU calibration capabilities.
 
-A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, recording capabilities, and motion data routing.
+## Features
 
-### 1. Features
+### Device Management
+- **Bluetooth LE Connection**: connect to multiple Metabow devices simultaneously.
+- **Real-time Status Monitoring**: RSSI signal strength, connection quality, and data packet tracking.
+- **Connection Recovery**: automatic reconnection handling and failure tracking.
 
-- **Device Management**: connect to multiple Metabow devices simultaneously via Bluetooth LE
-- **Audio Processing**: real-time audio capture and processing with configurable gain, noise gate, and noise reduction
-- **OSC Integration**: 
-  - Flexible routing system for audio and motion data
-  - Support for individual routes and bundled messages
-  - Customizable OSC paths and message bundling
-  - Multiple OSC destinations with independent routing configurations
-- **Recording**: WAV file recording with timestamp-based naming
-- **Monitoring**: 
-  - Real-time audio levels (peak and noise floor)
-  - Latency monitoring (average, peak, and buffer)
-  - Comprehensive logging system
-  - Route discovery and monitoring
-- **Virtual Audio Output**: integration with VB-Cable for virtual audio device routing (Note: This feature is currently in development and not fully functional)
+### Advanced Audio Processing
+- **Real-time Audio Capture**: high-quality audio processing with configurable parameters.
+- **Audio Feature Extraction**: 
+  - MFCC (Mel-frequency Cepstral Coefficients)
+  - Spectral features (centroid, bandwidth, contrast, rolloff)
+  - Chroma features for harmonic analysis
+  - Tonnetz for tonal analysis
+  - Custom bow force estimation for violin applications
+- **Audio Enhancement**: configurable gain, noise gate, and noise reduction.
+- **Virtual Audio Output**: VB-Cable integration for routing to audio software.
 
-### 2. Requirements
+### Motion Data Processing
+- **IMU Data Smoothing**: multiple filtering algorithms including Kalman filters, moving averages, and Savitzky-Golay
+- **Axis Calibration**: 3D visualization and calibration tools for proper IMU orientation mapping
+- **Real-time 3D Visualization**: interactive 3D model display with STL file support
 
-#### 2.1 Core Dependencies
-- `Python 3.x`
-- `bleak`
-- `python-osc`
-- `numpy`
-- `tkinter`
-- `pyaudio`
-- `sounddevice`
+### OSC Integration
+- **Flexible Routing System**: individual routes and bundled messages with customizable paths.
+- **Multiple Destinations**: independent routing configurations for different applications.
+- **Route Discovery**: automatic detection and management of available data streams.
+- **Data Logging**: comprehensive JSON export of all OSC data with timestamps.
 
-#### 2.2 Optional Dependencies
-- VB-Cable (for virtual audio routing - feature in development)
+### System Monitoring
+- **Performance Tracking**: real-time CPU usage, memory monitoring, and processing latency.
+- **Comprehensive Logging**: floating log window with exportable logs.
+- **Audio Monitoring**: peak levels, noise floor, and latency metrics.
 
-### 3. Quick Start
+## Requirements
 
-1. Install dependencies `pip install bleak python-osc numpy pyaudio sounddevice`
-   
-3. Run the application ```python metabow_bridge.py```
+### Core Dependencies
+```bash
+pip install bleak python-osc numpy tkinter pyaudio sounddevice
+```
 
-5. In the GUI:
-   - **Add OSC destinations** (specify ports)
-   - **Scan and connect** to Metabow devices
-   - **Configure routing:**
-     - Add individual routes for specific data
-     - Create bundles for combined messages
-     - Customize OSC paths as needed
-   - **Adjust audio** processing settings if needed
-   - **Start recording** (optional)
+### Advanced Features Dependencies
+```bash
+pip install scipy scikit-learn librosa matplotlib psutil
+```
 
-### 4. Technical Notes 
+### 3D Visualization (Optional)
+```bash
+pip install numpy-stl matplotlib
+```
 
-**4.1 Audio System**
-- Optimized for MP34DT05-A PDM microphone
-- Configurable audio processing parameters
-- Real-time audio monitoring and statistics
+### System Requirements
+- **VB-Cable** (for virtual audio routing) - Download from [VB-Audio.com](https://vb-audio.com/Cable/)
+- **Python 3.8+** recommended for optimal performance
 
-**4.2 Data Protocol**
-- Bluetooth protocol combines PCM audio data with motion data
-- Motion data includes 13 float values:
-  - Quaternion (i, j, k, r)
-  - Accelerometer (x, y, z)
-  - Gyroscope (x, y, z)
-  - Magnetometer (x, y, z)
-- Status flag for data validation
+## Quick Start
 
-**4.3 OSC Implementation**
-- Flexible routing system with support for:
-  - Individual routes (/metabow/audio, /metabow/motion/*)
-  - Custom path mapping
-  - Message bundling for combined data
-  - Multiple independent destinations
-- Real-time route discovery and management
- 
-### 5. GUI Sections
-**5.1 Bluetooth Devices**
-- Device scanning
-- Connection management
+1. **Install Dependencies**
+   ```bash
+   pip install bleak python-osc numpy pyaudio sounddevice scipy scikit-learn librosa matplotlib psutil numpy-stl
+   ```
 
-**5.2 OSC Routing**
-- Destination management
-- Route configuration
-- Bundle creation
+2. **Run the Application**
+   ```bash
+   python testing_file_floating_calibration_NIME_CPU.py
+   ```
 
-**5.3 Audio Controls**
-- Processing parameters
-- Recording controls
-- Virtual output (in development)
+3. **Basic Setup**
+   - **Add OSC Destinations**: specify target ports (e.g., 6448 for Wekinator).
+   - **Scan and Connect**: find and connect to Metabow devices.
+   - **Configure Audio Features**: enable desired audio feature extraction.
+   - **Set up IMU Processing**: configure axis calibration and smoothing if needed.
 
-**5.4 Monitoring**
-- Audio levels
-- Latency metrics
-- System logs
+4. **Advanced Configuration**
+   - **Audio Features**: open "Feature Extraction" to configure MFCC, spectral features, etc.
+   - **IMU Calibration**: use "Axis Calibration" for 3D visualization and orientation mapping.
+   - **Data Logging**: enable "Save JSON" to capture all OSC data for analysis.
 
-### 6. Contributing
-We welcome contributions! Please feel free to submit a Pull Request.
+## Technical Architecture
+
+### Audio Processing Pipeline
+- **Input**: MP34DT05-A PDM microphone data via Bluetooth.
+- **Processing**: real-time feature extraction using librosa and scikit-learn.
+- **Output**: individual features or bundled data via OSC.
+- **Features Available**:
+  - `mfcc`: Mel-frequency cepstral coefficients (13 coefficients)
+  - `spectral_centroid`: Brightness indicator
+  - `spectral_bandwidth`: Spectral width measure
+  - `spectral_contrast`: Harmonic vs. noise ratio
+  - `spectral_rolloff`: High-frequency content measure
+  - `chroma_*`: Harmonic content analysis (12 bins)
+  - `tonnetz`: Tonal space analysis (6 dimensions)
+  - `bow_force_*`: Custom violin bow pressure estimation
+
+### Motion Data Processing
+- **Raw Data**: 13-component IMU data (quaternion, accelerometer, gyroscope, magnetometer).
+- **Calibration**: 3x3 transformation matrices for axis remapping.
+- **Smoothing**: configurable filters (Kalman, EMA, Gaussian, etc.).
+- **Visualization**: real-time 3D rendering with STL model support.
+
+### OSC Data Structure
+```
+/metabow/audio                    # Raw PCM audio data
+/metabow/audio/mfcc              # MFCC features (array)
+/metabow/audio/spectral_centroid # Spectral centroid (float)
+/metabow/audio/bow_force_rms     # Bow force estimation (float)
+/metabow/motion/quaternion_*     # Quaternion components
+/metabow/motion/accelerometer_*  # Accelerometer data
+/metabow/motion/gyroscope_*      # Gyroscope data
+/metabow/motion/magnetometer_*   # Magnetometer data
+```
+
+### Data Logging Format
+```json
+{
+  "metadata": {
+    "export_timestamp": 1641234567.89,
+    "total_entries": 15000,
+    "duration_seconds": 30.5,
+    "data_types": ["motion", "audio_feature", "bundle"]
+  },
+  "data": [
+    {
+      "timestamp": 1641234567.89,
+      "osc_path": "/metabow/audio/mfcc",
+      "value": [1.2, -0.5, 0.8, ...],
+      "data_type": "audio_feature"
+    }
+  ]
+}
+```
+
+## GUI Interface
+
+### Bluetooth Devices Panel
+- **Device Control**: scan, connect, disconnect multiple devices.
+- **Status Monitoring**: real-time RSSI, signal quality, and data rates.
+- **Configuration**: access to IMU smoothing, axis calibration, and audio features.
+
+### OSC Routing Panel
+- **Destination Management**: add/remove OSC targets with port configuration.
+- **Route Configuration**: individual data stream routing with custom paths.
+- **Bundle Management**: combine multiple data streams into single OSC messages.
+- **Real-time Monitoring**: view active routes and data flow.
+
+### Audio Controls Panel
+- **Virtual Output**: VB-Cable integration for audio software routing.
+- **Recording**: WAV file capture with timestamp naming.
+- **Processing Controls**: cain, gate threshold, noise reduction.
+- **Monitoring**: peak levels, noise floor, latency metrics.
+
+### System Performance Panel
+- **CPU Monitoring**: real-time usage tracking and performance warnings.
+- **Memory Usage**: process memory consumption and system resources.
+- **Data Logging**: JSON export controls and buffer status.
+
+## Advanced Features
+
+### IMU Axis Calibration
+- **3D Visualization**: interactive matplotlib-based 3D display.
+- **STL Model Support**: Load custom 3D models for visualization.
+- **Manual Rotation**: Apply offset rotations for proper orientation.
+- **Calibration Presets**: Save and load calibration configurations.
+
+### Audio Feature Extraction
+- **Configurable Parameters**: adjust frame sizes, hop lengths, and feature parameters.
+- **Real-time Processing**: low-latency feature extraction suitable for live performance.
+- **Machine Learning Ready**: features formatted for direct use with Wekinator or custom ML models.
+
+### Performance Optimization
+- **CPU Monitoring**: real-time performance tracking and optimization warnings.
+- **Processing Statistics**: detailed latency and throughput metrics.
+- **Memory Management**: efficient buffering and resource cleanup.
+
+## Use Cases
+
+### Music Performance
+- **Real-time Control**: use motion and audio features to control live audio processing.
+- **Gesture Recognition**: train ML models on combined motion and audio data.
+- **Interactive Systems**: create responsive musical instruments and installations.
+
+### Research Applications
+- **Data Collection**: comprehensive logging of multimodal sensor data.
+- **Analysis**: JSON export for offline analysis and machine learning.
+- **Prototyping**: rapid development of sensor-based interactive systems.
+
+### Educational Projects
+- **NIME (New Interfaces for Musical Expression)**: complete toolkit for digital music interface research.
+- **Sensor Fusion**: explore combination of audio and motion data.
+- **Real-time Systems**: learn about low-latency sensor processing.
+
+## Troubleshooting
+
+### Common Issues
+- **VB-Cable Not Detected**: install VB-Cable from official website and restart application.
+- **High CPU Usage**: reduce audio feature extraction frame rate or disable unused features.
+- **Connection Drops**: check Bluetooth signal strength and reduce distance to device.
+
+### Performance Optimization
+- **Reduce Latency**: lower audio buffer sizes and disable unnecessary features.
+- **Memory Usage**: adjust data logging buffer sizes and clear logs regularly.
+- **3D Visualization**: use lower-resolution STL models for better performance.
+
+## Contributing
+
+We welcome contributions! Please feel free to submit Pull Requests for:
+- Additional audio features and analysis algorithms
+- Enhanced 3D visualization capabilities
+- Performance optimizations
+- Documentation improvements
+- Bug fixes and stability improvements
+
+## License
+
+This project is open source. Please check the license file for specific terms and conditions.
+
 
 # Bootloading
 ### Prerequisites
