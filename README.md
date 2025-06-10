@@ -64,9 +64,9 @@ The MetaBoard Development Kit includes:
 
 # MetaBoard Bridge
 
-<img width="100%" alt="Screenshot 2025-02-03 at 10 55 24" src="https://github.com/user-attachments/assets/d68e97e9-04f0-47c4-a3f2-478378f89a9d" />
+<img width="100%" alt="Screenshot 2025-06-10 at 10 44 19" src="https://github.com/user-attachments/assets/bca1c253-9071-40ee-8135-0b5504e1d6cd" />
 
-A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, motion data routing, real-time feature extraction, and advanced IMU calibration capabilities.
+<br>A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound Control), providing comprehensive audio processing, motion data routing, real-time feature extraction, and advanced IMU calibration capabilities.
 
 ## Features
 
@@ -87,9 +87,15 @@ A Python application that bridges Metabow Bluetooth devices with OSC (Open Sound
 - **Virtual Audio Output**: VB-Cable integration for routing to audio software.
 
 ### Motion Data Processing
-- **IMU Data Smoothing**: multiple filtering algorithms including Kalman filters, moving averages, and Savitzky-Golay
-- **Axis Calibration**: 3D visualization and calibration tools for proper IMU orientation mapping
-- **Real-time 3D Visualization**: interactive 3D model display with STL file support
+- **IMU Data Smoothing**: multiple filtering algorithms including:
+  - Moving Average: simple averaging filter that reduces noise by averaging recent samples over a configurable window.
+  - Exponential Moving Average (EMA): weighted average that gives more importance to recent samples while maintaining responsiveness.
+  - Kalman Filter: optimal estimation filter that uses prediction and measurement models to minimize estimation error.
+  - Savitzky-Golay Filter: polynomial smoothing filter that preserves signal features while reducing noise.
+  - Median Filter: non-linear filter that replaces each sample with the median of neighboring samples to remove outliers.
+  - Gaussian Filter: applies Gaussian weighting to smooth data while preserving important signal characteristics.
+- **Axis Calibration**: 3D visualization and calibration tools for proper IMU orientation mapping.
+- **Real-time 3D Visualization**: interactive 3D model display with STL file support.
 
 ### OSC Integration
 - **Flexible Routing System**: individual routes and bundled messages with customizable paths.
