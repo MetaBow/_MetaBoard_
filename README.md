@@ -175,7 +175,7 @@ pip install numpy-stl matplotlib
 
 ### OSC Data Structure
 ```
-/metabow/audio                    # Raw PCM audio data
+/metabow/audio                   # Raw PCM audio data
 /metabow/audio/mfcc              # MFCC features (array)
 /metabow/audio/spectral_centroid # Spectral centroid (float)
 /metabow/audio/bow_force_rms     # Bow force estimation (float)
