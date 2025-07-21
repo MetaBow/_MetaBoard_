@@ -32,6 +32,15 @@
 
 #include "lz4.h"
 
+// battery monitor includes
+#include <zephyr/bluetooth/services/bas.h>
+#include "battery_monitor.h"
+
+#include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
+
+//for testing on DK make this 1 and for testing on PCB make it 0
+#define TEST_DK_APP				0
+
 #define LOG_MODULE_NAME metabow
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
@@ -43,6 +52,8 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #define DEVICE_NAME_LEN	(sizeof(DEVICE_NAME) - 1)
 
 #define RUN_STATUS_LED DK_LED1
+#define DFU_STATUS_LED DK_LED2
+#
 #define RUN_LED_BLINK_INTERVAL 1000
 
 #define CON_STATUS_LED DK_LED2
@@ -78,7 +89,8 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 // #define IMU_DATA_SIZE (4+3+3+3)*sizeof(float)
 #define IMU_DATA_SIZE (13)*sizeof(float)
 #define IMU_DATA_FLAG_SIZE 1
-#define BLE_BLOCK_SIZE MAX_BLOCK_SIZE+IMU_DATA_SIZE+IMU_DATA_FLAG_SIZE
+#define BATTERY_DATA_SIZE sizeof(float)  // Battery SoC as float
+#define BLE_BLOCK_SIZE MAX_BLOCK_SIZE+IMU_DATA_SIZE+IMU_DATA_FLAG_SIZE+BATTERY_DATA_SIZE
 
 K_MEM_SLAB_DEFINE(mem_slab, BLE_BLOCK_SIZE, BLOCK_COUNT, 4);
 
@@ -108,6 +120,10 @@ K_PIPE_DEFINE(imu_pipe, IMU_DATA_SIZE, 4);
 static K_SEM_DEFINE(ble_init_ok, 0, 1);
 static K_SEM_DEFINE(imu_init_ok, 0, 1);
 static K_SEM_DEFINE(dmic_data_available, 0, BLOCK_COUNT);
+
+// Battery BLE update work
+static struct k_work_delayable battery_ble_update_work;
+
 
 static struct bt_conn *current_conn;
 static struct bt_conn *auth_conn;
@@ -143,39 +159,45 @@ static const struct bt_data sd[] = {
 
 static void connected(struct bt_conn *conn, uint8_t err)
 {
-	char addr[BT_ADDR_LE_STR_LEN];
+    char addr[BT_ADDR_LE_STR_LEN];
 
-	if (err) {
-		LOG_ERR("Connection failed (err %u)", err);
-		return;
-	}
+    if (err) {
+        LOG_ERR("Connection failed (err %u)", err);
+        return;
+    }
 
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
-	LOG_INF("Connected %s", addr);
+    bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+    LOG_INF("Connected %s", addr);
 
-	current_conn = bt_conn_ref(conn);
+    current_conn = bt_conn_ref(conn);
 
-	dk_set_led_on(CON_STATUS_LED);
+    dk_set_led_on(CON_STATUS_LED);
+    
+    // Start battery level updates when connected
+    k_work_reschedule(&battery_ble_update_work, K_NO_WAIT);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	char addr[BT_ADDR_LE_STR_LEN];
+    char addr[BT_ADDR_LE_STR_LEN];
 
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+    bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-	LOG_INF("Disconnected: %s (reason %u)", addr, reason);
+    LOG_INF("Disconnected: %s (reason %u)", addr, reason);
 
-	if (auth_conn) {
-		bt_conn_unref(auth_conn);
-		auth_conn = NULL;
-	}
+    if (auth_conn) {
+        bt_conn_unref(auth_conn);
+        auth_conn = NULL;
+    }
 
-	if (current_conn) {
-		bt_conn_unref(current_conn);
-		current_conn = NULL;
-		dk_set_led_off(CON_STATUS_LED);
-	}
+    if (current_conn) {
+        bt_conn_unref(current_conn);
+        current_conn = NULL;
+        dk_set_led_off(CON_STATUS_LED);
+        
+        // Stop battery updates when disconnected
+        k_work_cancel_delayable(&battery_ble_update_work);
+    }
 }
 
 static bool le_param_req(struct bt_conn *conn, struct bt_le_conn_param *param)
@@ -277,6 +299,37 @@ static void configure_gpio(void)
 	}
 }
 
+// Example: Get battery status periodically
+void get_battery_status(void)
+{
+    uint8_t soc = battery_get_soc();
+    float voltage = battery_get_voltage();
+    uint16_t raw_adc = battery_get_raw_adc();
+    
+    LOG_INF("Battery Status - SoC: %d%%, Voltage: %.2fV, ADC: %d", 
+            soc, voltage, raw_adc);
+    
+    // You can send this over BLE or use it in your application
+}
+
+
+
+static void battery_ble_update_handler(struct k_work *work)
+{
+    uint8_t battery_level = battery_get_soc();
+    float battery_voltage = battery_get_voltage();
+    
+    // Update BLE Battery Service
+    int err = bt_bas_set_battery_level(battery_level);
+    if (err) {
+        LOG_WRN("Failed to update battery level: %d", err);
+    } else {
+        LOG_INF("BLE Battery Service updated: %d%% (%.2fV)", battery_level, battery_voltage);
+    }
+    
+    // Reschedule for next update
+    k_work_reschedule(&battery_ble_update_work, K_MSEC(BATTERY_SERVICE_UPDATE_INTERVAL_MS));
+}
 
 
 int main(void)
@@ -286,7 +339,7 @@ int main(void)
 	int ret;
 
 	
-
+#if (TEST_DK_APP == 0)
 	if (!device_is_ready(dmic_dev)) {
 		LOG_ERR("%s is not ready", dmic_dev->name);
 		return 0;
@@ -336,7 +389,7 @@ int main(void)
 	}
 	
 	nrf_pdm_gain_set(NRF_PDM0, NRF_PDM_GAIN_MAXIMUM, NRF_PDM_GAIN_MAXIMUM);
-
+#endif
 	configure_gpio();
 
 	// err = uart_init();
@@ -348,6 +401,9 @@ int main(void)
 	if (err) {
 		error();
 	}
+	// /* ---------- expose mcumgr SMP DFU service -------------- */
+	smp_bt_register();        /* init Secure DFU OTA */
+
 
 	LOG_INF("Bluetooth initialized");
 
@@ -362,6 +418,27 @@ int main(void)
 		LOG_ERR("Failed to initialize NUS service (err: %d)", err);
 		return 0;
 	}
+
+	k_sleep(K_MSEC(500));
+	// Initialize battery monitoring
+	err = battery_monitor_init();
+	if (err) {
+		LOG_ERR("Battery monitor init failed: %d", err);
+		// Continue anyway, battery monitoring is not critical
+	}
+
+	    // Initialize battery BLE update work
+    k_work_init_delayable(&battery_ble_update_work, battery_ble_update_handler);
+
+    // Get initial battery reading and set it
+    k_sleep(K_MSEC(100)); // Small delay to ensure battery monitor has a reading
+    uint8_t initial_battery = battery_get_soc();
+    err = bt_bas_set_battery_level(initial_battery);
+    if (err) {
+        LOG_WRN("Failed to set initial battery level: %d", err);
+    } else {
+        LOG_INF("Initial battery level set to %d%%", initial_battery);
+    }
 
 	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	if (err) {
@@ -382,24 +459,37 @@ int main(void)
 	// }
 
 	//==================================================
-
+#if (TEST_DK_APP == 0)
 	ret = dmic_trigger(dmic_dev, DMIC_TRIGGER_START);
 	if (ret < 0) {
 		LOG_ERR("START trigger failed: %d", ret);
 		return ret;
 	}
-
+#endif
 	
 
 	
 	for (;;) {
+
+		// battery status
+		// get_battery_status();
+		
+#if (TEST_DK_APP == 0)
 		// dk_set_led(RUN_STATUS_LED, (++blink_status) % 2);
 		// k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
+#else
+		dk_set_led(DFU_STATUS_LED, (++blink_status) % 2);
+		k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
+#endif
+
 		// ---------------------------------------------
+#if (TEST_DK_APP == 0)
 
 		void *buffer;
 		uint32_t size;
+#if defined(DEBUG_PRINT)
 		LOG_INF("mem_slabs in use before next dmic read: %d", k_mem_slab_num_used_get(&mem_slab));
+#endif
 		ret = dmic_read(dmic_dev, 0, &buffer, &size, READ_TIMEOUT);
 		if (ret < 0) {
 			LOG_ERR("dmic read failed: %d", ret);
@@ -415,71 +505,77 @@ int main(void)
 		tx->data = buffer;
 		k_fifo_put(&fifo_nus_rx_data, tx);
 		// LOG_INF("dmic buffer size: %d", size);
+#endif
 
 	}
+#if (TEST_DK_APP == 0)
 
 	ret = dmic_trigger(dmic_dev, DMIC_TRIGGER_STOP);
 	if (ret < 0) {
 		LOG_ERR("STOP trigger failed: %d", ret);
 		return ret;
 	}
+#endif
+
 }
 
 void ble_write_thread(void)
 {
-	/* Don't go any further until BLE is initialized */
-	k_sem_take(&ble_init_ok, K_FOREVER);
-	// int max_dst_size = LZ4_compressBound(MAX_BLOCK_SIZE+1);
-	// uint8_t *compressed_audio = k_malloc((size_t)max_dst_size);
-	int rc;
-	for (;;) {
-		struct mem_slab_data_t *buf = k_fifo_get(&fifo_nus_rx_data, K_FOREVER);
-		if(buf != NULL){
-			void *buffer = buf->data;
-			//size of audio data, not whole slab
-			uint32_t size = BLE_BLOCK_SIZE;
+    /* Don't go any further until BLE is initialized */
+    k_sem_take(&ble_init_ok, K_FOREVER);
+    int rc;
+    
+    for (;;) {
+        struct mem_slab_data_t *buf = k_fifo_get(&fifo_nus_rx_data, K_FOREVER);
+        if(buf != NULL){
+            void *buffer = buf->data;
+            uint32_t size = BLE_BLOCK_SIZE;
 
-			// int compressed_size = LZ4_compress_default(buffer,
-			// 		compressed_audio, size,
-			// 		max_dst_size);
-			// LOG_WRN("compressed to %d",compressed_size);
-			size_t bytes_read;
-			rc = k_pipe_get(&imu_pipe, (uint8_t*)buffer+MAX_BLOCK_SIZE, IMU_DATA_SIZE, &bytes_read,
-					IMU_DATA_SIZE, K_USEC(50));
-			uint8_t imu_data_flag = 0;
-			if((rc < 0) && (bytes_read == 0)){
-				// LOG_INF("No new IMU data");
-				imu_data_flag = 0;
-			}else if ((rc < 0) || (bytes_read < IMU_DATA_SIZE)) {
-				LOG_ERR("Failed to get all IMU data from pipe, read: %d", bytes_read);
-				imu_data_flag = 0;
-			}else{
-				imu_data_flag = 1;
-			}
-			
-			*((uint8_t*)buffer+BLE_BLOCK_SIZE-1) = imu_data_flag;
+            // Get IMU data
+            size_t bytes_read;
+            rc = k_pipe_get(&imu_pipe, (uint8_t*)buffer+MAX_BLOCK_SIZE, IMU_DATA_SIZE, &bytes_read,
+                    IMU_DATA_SIZE, K_USEC(50));
+            uint8_t imu_data_flag = 0;
+            if((rc < 0) && (bytes_read == 0)){
+                imu_data_flag = 0;
+            }else if ((rc < 0) || (bytes_read < IMU_DATA_SIZE)) {
+                LOG_ERR("Failed to get all IMU data from pipe, read: %d", bytes_read);
+                imu_data_flag = 0;
+            }else{
+                imu_data_flag = 1;
+            }
+            
+            // Set IMU data flag
+            *((uint8_t*)buffer + MAX_BLOCK_SIZE + IMU_DATA_SIZE) = imu_data_flag;
+            
+            // Add battery SoC data
+            float battery_soc = (float)battery_get_soc();  // Get current battery percentage
+            memcpy((uint8_t*)buffer + MAX_BLOCK_SIZE + IMU_DATA_SIZE + IMU_DATA_FLAG_SIZE, 
+                   &battery_soc, BATTERY_DATA_SIZE);
+            
+            LOG_INF("Sending BLE data with Battery SoC: %.1f%%", battery_soc);
 
-			const size_t max_packet_size = bt_nus_get_mtu(current_conn);
-			LOG_INF("BLE audio data buffer size: %d, MTU size: %d", size, max_packet_size);
-			if (size > max_packet_size){
-				for (uint32_t sendIndex = 0; sendIndex < size; sendIndex += max_packet_size) {
-					uint32_t chunkLength = sendIndex + max_packet_size < size
-							? max_packet_size
-							: (size - sendIndex);
-					if (bt_nus_send(current_conn, (uint8_t*) buffer + sendIndex, chunkLength)) {
-						// LOG_WRN("Failed to send audio data over BLE connection");
-					}
-				}
-			}else{
-				if (bt_nus_send(current_conn, (uint8_t*) buffer, size)) {
-					// LOG_WRN("Failed to send audio data over BLE connection");
-				}
-			}
-			k_mem_slab_free(&mem_slab, &buffer);
-			k_free(buf);
-		}
-		
-	}
+            const size_t max_packet_size = bt_nus_get_mtu(current_conn);
+            LOG_INF("BLE audio data buffer size: %d, MTU size: %d", size, max_packet_size);
+            
+            if (size > max_packet_size){
+                for (uint32_t sendIndex = 0; sendIndex < size; sendIndex += max_packet_size) {
+                    uint32_t chunkLength = sendIndex + max_packet_size < size
+                            ? max_packet_size
+                            : (size - sendIndex);
+                    if (bt_nus_send(current_conn, (uint8_t*) buffer + sendIndex, chunkLength)) {
+                        // LOG_WRN("Failed to send audio data over BLE connection");
+                    }
+                }
+            }else{
+                if (bt_nus_send(current_conn, (uint8_t*) buffer, size)) {
+                    // LOG_WRN("Failed to send audio data over BLE connection");
+                }
+            }
+            k_mem_slab_free(&mem_slab, &buffer);
+            k_free(buf);
+        }
+    }
 }
 
 void imu_fetch_thread(void)
@@ -532,18 +628,20 @@ void imu_fetch_thread(void)
         } else if (bytes_written < IMU_DATA_SIZE) {
             LOG_ERR("Only %d bytes written to IMU pipe", bytes_written);
         }
+#if defined(DEBUG_PRINT)
 		LOG_INF("Rotation: I: %f, J: %f, K: %f, R: %f", sensor_value_to_double(&quat[0]), sensor_value_to_double(&quat[1]), sensor_value_to_double(&quat[2]), sensor_value_to_double(&quat[3]));
-		// LOG_INF("Acceleration: X: %f, Y: %f, Z: %f", sensor_value_to_double(&accel[0]), sensor_value_to_double(&accel[1]), sensor_value_to_double(&accel[2]));
-		// LOG_INF("Gyroscope: X: %f, Y: %f, Z: %f", sensor_value_to_double(&gyro[0]), sensor_value_to_double(&gyro[1]), sensor_value_to_double(&gyro[2]));
-		// LOG_INF("Magnetometer: X: %f, Y: %f, Z: %f", sensor_value_to_double(&mag[0]), sensor_value_to_double(&mag[1]), sensor_value_to_double(&mag[2]));
-
+		LOG_INF("Acceleration: X: %f, Y: %f, Z: %f", sensor_value_to_double(&accel[0]), sensor_value_to_double(&accel[1]), sensor_value_to_double(&accel[2]));
+		LOG_INF("Gyroscope: X: %f, Y: %f, Z: %f", sensor_value_to_double(&gyro[0]), sensor_value_to_double(&gyro[1]), sensor_value_to_double(&gyro[2]));
+		LOG_INF("Magnetometer: X: %f, Y: %f, Z: %f", sensor_value_to_double(&mag[0]), sensor_value_to_double(&mag[1]), sensor_value_to_double(&mag[2]));
+#endif
 		// bt_nus_send(current_conn, (uint8_t*) quat, sizeof(quat));
 		k_sleep(K_USEC(200));
 	}
 }
-
+#if (TEST_DK_APP == 0)
 K_THREAD_DEFINE(ble_write_thread_id, STACKSIZE, ble_write_thread, NULL, NULL,
 		NULL, BLE_THREAD_PRIORITY, 0, 0);
 
 K_THREAD_DEFINE(imu_fetch_thread_id, 4096, imu_fetch_thread, NULL, NULL,
 		NULL, IMU_THREAD_PRIORITY, 0, 0);
+#endif

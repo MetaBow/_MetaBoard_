@@ -15,6 +15,7 @@ project(metabow-firmware)
 # NORDIC SDK APP START
 target_sources(app PRIVATE
   src/main.c
+  src/battery_monitor.c
 )
 
 # NORDIC SDK APP END
