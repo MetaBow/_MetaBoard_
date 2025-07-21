@@ -112,3 +112,29 @@ dmic_dev: &pdm0 {
 		};
 	};
 };
+
+
+&adc {
+    status = "okay";
+};
+
+/ {
+    zephyr,user {
+        io-channels = <&adc 2>;  // AIN2 (P0.06)
+    };
+};
+
+&adc {
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@2 {
+        reg = <2>;
+        zephyr,gain = "ADC_GAIN_1_6";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+        zephyr,input-positive = <NRF_SAADC_AIN2>;  // P0.06
+        zephyr,resolution = <12>;
+        zephyr,oversampling = <4>;
+    };
+};
