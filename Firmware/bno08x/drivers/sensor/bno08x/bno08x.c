@@ -16,6 +16,9 @@
 
 #include "bno08x.h"
 
+#define SAMPLE_INTERVAL_US 2000
+
+
 sh2_Hal_t sh2_HAL;
 sh2_ProductIds_t productIds;
 
@@ -71,11 +74,11 @@ static int bno08x_sample_fetch(const struct device *dev, enum sensor_channel cha
 	if (chan != SENSOR_CHAN_ALL) {
 		return -ENOTSUP;
 	}
-	// enableReport(SH2_ACCELEROMETER, 1000, 0, dev);
-	// enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, 1000, 0, dev);
-	// enableReport(SH2_LINEAR_ACCELERATION, 1000, 0, dev);
-	// enableReport(SH2_GYROSCOPE_CALIBRATED, 1000, 0, dev);
-	enableReport(SH2_ROTATION_VECTOR, 1000, 0, dev);
+	enableReport(SH2_ACCELEROMETER, SAMPLE_INTERVAL_US, 0, dev);
+	enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
+	// enableReport(SH2_LINEAR_ACCELERATION, SAMPLE_INTERVAL_US, 0, dev);
+	enableReport(SH2_GYROSCOPE_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
+	enableReport(SH2_ROTATION_VECTOR, SAMPLE_INTERVAL_US, 0, dev);
 	LOG_INF("BNO08X sample fetch");
 	sh2_service();
 
@@ -98,9 +101,12 @@ static int bno08x_channel_get(const struct device *dev, enum sensor_channel chan
 			sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.z);
 			break;
 		case SENSOR_CHAN_ACCEL_XYZ:
-			sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.x);
-			sensor_value_from_double(val+1,data->sensor_value.un.linearAcceleration.y);
-			sensor_value_from_double(val+2,data->sensor_value.un.linearAcceleration.z);
+			// sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.x);
+			// sensor_value_from_double(val+1,data->sensor_value.un.linearAcceleration.y);
+			// sensor_value_from_double(val+2,data->sensor_value.un.linearAcceleration.z);
+			val[0] = data->accel[0];
+			val[1] = data->accel[1];
+			val[2] = data->accel[2];
 			break;
 		case SENSOR_CHAN_GYRO_X:
 			sensor_value_from_double(val,data->sensor_value.un.gyroscope.x);
@@ -112,9 +118,12 @@ static int bno08x_channel_get(const struct device *dev, enum sensor_channel chan
 			sensor_value_from_double(val,data->sensor_value.un.gyroscope.z);
 			break;
 		case SENSOR_CHAN_GYRO_XYZ:
-			sensor_value_from_double(val,data->sensor_value.un.gyroscope.x);
-			sensor_value_from_double(val+1,data->sensor_value.un.gyroscope.y);
-			sensor_value_from_double(val+2,data->sensor_value.un.gyroscope.z);
+			// sensor_value_from_double(val,data->sensor_value.un.gyroscope.x);
+			// sensor_value_from_double(val+1,data->sensor_value.un.gyroscope.y);
+			// sensor_value_from_double(val+2,data->sensor_value.un.gyroscope.z);
+			val[0] = data->gyro[0];
+			val[1] = data->gyro[1];
+			val[2] = data->gyro[2];
 			break;
 		case SENSOR_CHAN_MAGN_X:
 			sensor_value_from_double(val,data->sensor_value.un.magneticField.x);
@@ -126,9 +135,12 @@ static int bno08x_channel_get(const struct device *dev, enum sensor_channel chan
 			sensor_value_from_double(val,data->sensor_value.un.magneticField.z);
 			break;
 		case SENSOR_CHAN_MAGN_XYZ:
-			sensor_value_from_double(val,data->sensor_value.un.magneticField.x);
-			sensor_value_from_double(val+1,data->sensor_value.un.magneticField.y);
-			sensor_value_from_double(val+2,data->sensor_value.un.magneticField.z);
+			// sensor_value_from_double(val,data->sensor_value.un.magneticField.x);
+			// sensor_value_from_double(val+1,data->sensor_value.un.magneticField.y);
+			// sensor_value_from_double(val+2,data->sensor_value.un.magneticField.z);
+			val[0] = data->mag[0];
+			val[1] = data->mag[1];
+			val[2] = data->mag[2];
 			break;
 		case SENSOR_CHAN_ROTATION_VEC_I:
 			sensor_value_from_double(val,data->sensor_value.un.rotationVector.i);
@@ -144,10 +156,14 @@ static int bno08x_channel_get(const struct device *dev, enum sensor_channel chan
 			break;
 		case SENSOR_CHAN_ROTATION_VEC_IJKR:
 			// LOG_INF("SENSOR_CHAN_ROTATION_VEC, I: %f, J: %f, K: %f, R: %f", data->sensor_value.un.rotationVector.i, data->sensor_value.un.rotationVector.j, data->sensor_value.un.rotationVector.k, data->sensor_value.un.rotationVector.real);
-			sensor_value_from_double(val,data->sensor_value.un.rotationVector.i);
-			sensor_value_from_double(val+1,data->sensor_value.un.rotationVector.j);
-			sensor_value_from_double(val+2,data->sensor_value.un.rotationVector.k);
-			sensor_value_from_double(val+3,data->sensor_value.un.rotationVector.real);
+			// sensor_value_from_double(val,data->sensor_value.un.rotationVector.i);
+			// sensor_value_from_double(val+1,data->sensor_value.un.rotationVector.j);
+			// sensor_value_from_double(val+2,data->sensor_value.un.rotationVector.k);
+			// sensor_value_from_double(val+3,data->sensor_value.un.rotationVector.real);
+			val[0] = data->quat[0];
+			val[1] = data->quat[1];
+			val[2] = data->quat[2];
+			val[3] = data->quat[3];
 			break;		
 		case SENSOR_CHAN_ROTATION_VEC_ACCURACY:
 			sensor_value_from_double(val,data->sensor_value.un.rotationVector.accuracy);
@@ -286,7 +302,7 @@ static int sh2_bus_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len,
 }
 
 static int sh2_bus_write(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, const struct device *dev) {
-	LOG_ERR("sh2_bus_write");
+	// LOG_ERR("sh2_bus_write");
 	int ret;
 
 	ret = bno08x_wait_for_int(dev);
@@ -361,7 +377,7 @@ static void sh2_callback(void *cookie, sh2_AsyncEvent_t *pEvent) {
 }
 
 // Handle sensor events.
-static void sh2_sensorHandler(void *cookie, sh2_SensorEvent_t *event, const struct device *dev) {
+/*static void sh2_sensorHandler(void *cookie, sh2_SensorEvent_t *event, const struct device *dev) {
 	LOG_WRN("sh2_sensorHandler");
 	struct bno08x_data *data = dev->data;
 	// static sh2_SensorValue_t _sensor_value;
@@ -374,6 +390,61 @@ static void sh2_sensorHandler(void *cookie, sh2_SensorEvent_t *event, const stru
 		return;
 	}
 
+}
+*/
+
+
+/* This is the callback from sh2_setSensorCallback() in your code. */
+static void sh2_sensorHandler(void *cookie, sh2_SensorEvent_t *event,
+                              const struct device *dev)
+{
+    struct bno08x_data *data = dev->data;
+
+    // 1) Decode into a temporary struct
+    sh2_SensorValue_t decoded;
+    int rc = sh2_decodeSensorEvent(&decoded, event);
+    if (rc != SH2_OK) {
+        // LOG_ERR("Error decoding sensor event: %d", rc);
+        return;
+    }
+
+    // 2) Switch on reportId, then use sensor_value_from_double
+    //    to preserve fractional data in val2.
+    switch (decoded.sensorId) {
+    case SH2_ACCELEROMETER:
+        sensor_value_from_double(&data->accel[0], decoded.un.accelerometer.x);
+        sensor_value_from_double(&data->accel[1], decoded.un.accelerometer.y);
+        sensor_value_from_double(&data->accel[2], decoded.un.accelerometer.z);
+        break;
+
+    case SH2_GYROSCOPE_CALIBRATED:
+        sensor_value_from_double(&data->gyro[0], decoded.un.gyroscope.x);
+        sensor_value_from_double(&data->gyro[1], decoded.un.gyroscope.y);
+        sensor_value_from_double(&data->gyro[2], decoded.un.gyroscope.z);
+        break;
+
+    case SH2_MAGNETIC_FIELD_CALIBRATED:
+        sensor_value_from_double(&data->mag[0], decoded.un.magneticField.x);
+        sensor_value_from_double(&data->mag[1], decoded.un.magneticField.y);
+        sensor_value_from_double(&data->mag[2], decoded.un.magneticField.z);
+        break;
+
+    case SH2_ROTATION_VECTOR:
+        // i, j, k, real
+        sensor_value_from_double(&data->quat[0], decoded.un.rotationVector.i);
+        sensor_value_from_double(&data->quat[1], decoded.un.rotationVector.j);
+        sensor_value_from_double(&data->quat[2], decoded.un.rotationVector.k);
+        sensor_value_from_double(&data->quat[3], decoded.un.rotationVector.real);
+        // If you need 'accuracy', do something similar with
+        // decoded.un.rotationVector.accuracy
+        break;
+
+    /* handle other sensors you want (Linear Accel, Gravity, etc.) */
+
+    default:
+        // For sensors you’re not using, either ignore or log them
+        break;
+    }
 }
 
 static uint32_t sh2_getTimeUs(sh2_Hal_t *self) {
@@ -463,9 +534,11 @@ static int bno08x_init(const struct device *dev)
 
     sh2_setSensorCallback(sh2_sensorHandler, NULL, dev);
 
-	// enableReport(SH2_ROTATION_VECTOR, 10000, 0, dev);
-	// enableReport(SH2_GAME_ROTATION_VECTOR, 1000, 0, dev);
-	// enableReport(SH2_GYROSCOPE_UNCALIBRATED, 100000, 0, dev);
+	enableReport(SH2_ROTATION_VECTOR, SAMPLE_INTERVAL_US, 0, dev);
+	enableReport(SH2_ACCELEROMETER, SAMPLE_INTERVAL_US, 0, dev);
+	enableReport(SH2_GYROSCOPE_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
+	enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
+
 
 	LOG_INF("BNO08X init done");
 	return ret;

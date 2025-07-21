@@ -41,14 +41,35 @@ enum bno08x_channel{
 	SENSOR_CHAN_ROTATION_VEC_ACCURACY,
  
 };
-
+/*
 struct bno08x_data {
 	sh2_SensorValue_t sensor_value;
 	int16_t ax, ay, az, gx, gy, gz;
 	uint8_t acc_range, acc_odr, gyr_odr;
 	uint16_t gyr_range;
 };
+*/
 
+struct bno08x_data {
+    // ... whatever else you have ...
+	sh2_SensorValue_t sensor_value;
+    // Keep separate arrays for each 3-axis sensor
+    struct sensor_value accel[3];
+    struct sensor_value gyro[3];
+    struct sensor_value mag[3];
+
+    // For rotation vector, we have 4 components: i, j, k, real
+    // Some drivers also store 'accuracy' as a fifth
+    struct sensor_value quat[4];
+
+	
+    // Could store others if you need them, e.g. raw accel, raw gyro, etc.
+
+	int16_t ax, ay, az, gx, gy, gz;
+	uint8_t acc_range, acc_odr, gyr_odr;
+	uint16_t gyr_range;
+
+};
 union bno08x_bus {
 #if CONFIG_BNO08X_BUS_SPI
 	struct spi_dt_spec spi;

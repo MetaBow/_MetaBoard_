@@ -99,7 +99,7 @@ int sh2_decodeSensorEvent(sh2_SensorValue_t *value, const sh2_SensorEvent_t *eve
     // extract delay field (100uS units)
     
     
-    switch (value->sensorId) {
+    switch (event->reportId) {
         case SH2_RAW_ACCELEROMETER:
             rc = decodeRawAccelerometer(value, event);
             break;
