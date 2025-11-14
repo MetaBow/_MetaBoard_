@@ -74,9 +74,9 @@ static int bno08x_sample_fetch(const struct device *dev, enum sensor_channel cha
 	if (chan != SENSOR_CHAN_ALL) {
 		return -ENOTSUP;
 	}
-	enableReport(SH2_ACCELEROMETER, SAMPLE_INTERVAL_US, 0, dev);
-	enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
-	// enableReport(SH2_LINEAR_ACCELERATION, SAMPLE_INTERVAL_US, 0, dev);
+    enableReport(SH2_ACCELEROMETER, SAMPLE_INTERVAL_US, 0, dev);
+    enableReport(SH2_LINEAR_ACCELERATION, SAMPLE_INTERVAL_US, 0, dev);
+    enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
 	enableReport(SH2_GYROSCOPE_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
 	enableReport(SH2_ROTATION_VECTOR, SAMPLE_INTERVAL_US, 0, dev);
 	LOG_INF("BNO08X sample fetch");
@@ -92,22 +92,30 @@ static int bno08x_channel_get(const struct device *dev, enum sensor_channel chan
 
 	switch(chan){
 		case SENSOR_CHAN_ACCEL_X:
-			sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.x);
-			break;
+			*val = data->accel[0]; break;
 		case SENSOR_CHAN_ACCEL_Y:
-			sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.y);
-			break;
+			*val = data->accel[1]; break;
 		case SENSOR_CHAN_ACCEL_Z:
-			sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.z);
-			break;
+			*val = data->accel[2]; break;
 		case SENSOR_CHAN_ACCEL_XYZ:
-			// sensor_value_from_double(val,data->sensor_value.un.linearAcceleration.x);
-			// sensor_value_from_double(val+1,data->sensor_value.un.linearAcceleration.y);
-			// sensor_value_from_double(val+2,data->sensor_value.un.linearAcceleration.z);
 			val[0] = data->accel[0];
 			val[1] = data->accel[1];
 			val[2] = data->accel[2];
 			break;
+
+		/* New: raw (gravity-included) acceleration on custom channel */
+		case SENSOR_CHAN_ACCEL_RAW_X:
+			*val = data->accel_raw[0]; break;
+		case SENSOR_CHAN_ACCEL_RAW_Y:
+			*val = data->accel_raw[1]; break;
+		case SENSOR_CHAN_ACCEL_RAW_Z:
+			*val = data->accel_raw[2]; break;
+		case SENSOR_CHAN_ACCEL_RAW_XYZ:
+			val[0] = data->accel_raw[0];
+			val[1] = data->accel_raw[1];
+			val[2] = data->accel_raw[2];
+			break;
+
 		case SENSOR_CHAN_GYRO_X:
 			sensor_value_from_double(val,data->sensor_value.un.gyroscope.x);
 			break;
@@ -412,9 +420,17 @@ static void sh2_sensorHandler(void *cookie, sh2_SensorEvent_t *event,
     //    to preserve fractional data in val2.
     switch (decoded.sensorId) {
     case SH2_ACCELEROMETER:
-        sensor_value_from_double(&data->accel[0], decoded.un.accelerometer.x);
-        sensor_value_from_double(&data->accel[1], decoded.un.accelerometer.y);
-        sensor_value_from_double(&data->accel[2], decoded.un.accelerometer.z);
+        /* RAW (gravity-included) accel in m/s^2 */
+        sensor_value_from_double(&data->accel_raw[0], decoded.un.accelerometer.x);
+        sensor_value_from_double(&data->accel_raw[1], decoded.un.accelerometer.y);
+        sensor_value_from_double(&data->accel_raw[2], decoded.un.accelerometer.z);
+        break;
+
+    case SH2_LINEAR_ACCELERATION:
+        /* Linear accel (gravity removed) in m/s^2 */
+        sensor_value_from_double(&data->accel[0], decoded.un.linearAcceleration.x);
+        sensor_value_from_double(&data->accel[1], decoded.un.linearAcceleration.y);
+        sensor_value_from_double(&data->accel[2], decoded.un.linearAcceleration.z);
         break;
 
     case SH2_GYROSCOPE_CALIBRATED:
@@ -449,6 +465,26 @@ static void sh2_sensorHandler(void *cookie, sh2_SensorEvent_t *event,
 
 static uint32_t sh2_getTimeUs(sh2_Hal_t *self) {
   return k_cyc_to_us_floor32(k_uptime_ticks());
+}
+
+/* Public helper: copy RAW (gravity-included) accel into out[3] */
+int bno08x_get_raw_accel(const struct device *dev, struct sensor_value out[3])
+{
+    struct bno08x_data *data = dev->data;   /* bno08x_data is this driver's state */
+    out[0] = data->accel_raw[0];
+    out[1] = data->accel_raw[1];
+    out[2] = data->accel_raw[2];
+    return 0;
+}
+
+/* (Optional) if you also want a helper for linear accel: */
+int bno08x_get_linear_accel(const struct device *dev, struct sensor_value out[3])
+{
+    struct bno08x_data *data = dev->data;
+    out[0] = data->accel[0];
+    out[1] = data->accel[1];
+    out[2] = data->accel[2];
+    return 0;
 }
 
 static int bno08x_init(const struct device *dev)
@@ -534,10 +570,11 @@ static int bno08x_init(const struct device *dev)
 
     sh2_setSensorCallback(sh2_sensorHandler, NULL, dev);
 
-	enableReport(SH2_ROTATION_VECTOR, SAMPLE_INTERVAL_US, 0, dev);
-	enableReport(SH2_ACCELEROMETER, SAMPLE_INTERVAL_US, 0, dev);
-	enableReport(SH2_GYROSCOPE_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
-	enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
+    enableReport(SH2_ROTATION_VECTOR, SAMPLE_INTERVAL_US, 0, dev);
+    enableReport(SH2_ACCELEROMETER, SAMPLE_INTERVAL_US, 0, dev);          /* RAW accel */
+    enableReport(SH2_LINEAR_ACCELERATION, SAMPLE_INTERVAL_US, 0, dev);     /* gravity-free */
+    enableReport(SH2_GYROSCOPE_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
+    enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, SAMPLE_INTERVAL_US, 0, dev);
 
 
 	LOG_INF("BNO08X init done");

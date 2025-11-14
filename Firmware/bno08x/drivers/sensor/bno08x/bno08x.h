@@ -39,7 +39,10 @@ enum bno08x_channel{
 	SENSOR_CHAN_ROTATION_VEC_IJKR,
 	SENSOR_CHAN_ROTATION_VEC_REAL,
 	SENSOR_CHAN_ROTATION_VEC_ACCURACY,
- 
+    SENSOR_CHAN_ACCEL_RAW_X,
+    SENSOR_CHAN_ACCEL_RAW_Y,
+    SENSOR_CHAN_ACCEL_RAW_Z,
+    SENSOR_CHAN_ACCEL_RAW_XYZ,
 };
 /*
 struct bno08x_data {
@@ -54,7 +57,8 @@ struct bno08x_data {
     // ... whatever else you have ...
 	sh2_SensorValue_t sensor_value;
     // Keep separate arrays for each 3-axis sensor
-    struct sensor_value accel[3];
+	struct sensor_value accel[3];       /* LINEAR acceleration (gravity removed) */
+    struct sensor_value accel_raw[3];   /* RAW accelerometer (gravity included) */
     struct sensor_value gyro[3];
     struct sensor_value mag[3];
 

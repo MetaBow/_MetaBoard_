@@ -1,0 +1,56 @@
+# Copyright (c) 2024
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Texas Instruments DRV2605 Haptic Driver
+  
+  The DRV2605 is a haptic driver IC that supports both Linear Resonant Actuator
+  (LRA) and Eccentric Rotating Mass (ERM) actuators.
+
+compatible: "ti,drv2605"
+
+include: i2c-device.yaml
+
+properties:
+  en-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      Enable GPIO pin for the DRV2605. This pin controls power to the device.
+  
+  ti,lra:
+    type: boolean
+    description: |
+      If present, configures the device for Linear Resonant Actuator (LRA).
+      If absent, the device is configured for Eccentric Rotating Mass (ERM).
+  
+  ti,rated-mv:
+    type: int
+    default: 2000
+    description: |
+      Rated voltage in millivolts. Typical values are 2000-3000 mV.
+  
+  ti,od-clamp-mv:
+    type: int
+    default: 3200
+    description: |
+      Overdrive clamp voltage in millivolts. This limits the maximum
+      output voltage during overdrive.
+  
+  ti,drive-time-tenth-ms:
+    type: int
+    default: 25
+    description: |
+      Initial LRA half-period guess in tenths of milliseconds.
+      For example, 25 = 2.5ms. Used for LRA mode only.
+  
+  ti,auto-cal-time:
+    type: int
+    default: 2
+    description: |
+      Auto-calibration time selection:
+      0 = 150ms
+      1 = 250ms
+      2 = 500ms
+      3 = 1000ms
+
