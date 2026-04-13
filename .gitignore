@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+venv/
+monitor-test-logs/
+scripts/
+AUDIT.md
+HOW_TO_MONITOR.md
+WORKPLAN.md
+.cursor/
