@@ -1,10 +1,29 @@
+# macOS
 .DS_Store
+._*
+
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+
+# Virtual environments
 venv/
+venv_broken/
+
+# Logs & test artefacts
 monitor-test-logs/
+audio-tests/
 scripts/
+
+# Large / unrelated files
+Miniconda3-latest-MacOSX-x86_64.sh
+testing_file_floating_callibration_SOC_NIME_CPU_ADPCM_LAST.py
+testing_file_floating_callibration_SOC_NIME_CPU_ADPCM_PARALLELIZED.py
+__init__-10.py
+
+# Documentation (kept out of version control)
 AUDIT.md
 HOW_TO_MONITOR.md
 WORKPLAN.md
-.cursor/
+BLE_AUDIO_FIRMWARE_BRIEF.md
