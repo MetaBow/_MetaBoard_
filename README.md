@@ -139,9 +139,9 @@ pip install numpy-stl matplotlib
 - **Windows:** No additional setup needed
 
 1. **Create Python Environement**
-  ```bash
-  conda create --name metabow python==3.11 
-  ```
+    ```bash
+    conda create --name metabow python==3.11 
+    ```
 
 2. **Install Dependencies**
    ```bash
