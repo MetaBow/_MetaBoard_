@@ -130,23 +130,37 @@ pip install numpy-stl matplotlib
 
 ## Quick Start
 
-1. **Install Dependencies**
+### Prerequisites
+
+**Install portaudio (required for PyAudio):**
+
+- **macOS:** `brew install portaudio`
+- **Linux:** `sudo apt-get install portaudio19-dev`
+- **Windows:** No additional setup needed
+
+1. **Create Python Environement**
+  ```bash
+  conda create --name metabow python==3.11 
+  ```
+
+2. **Install Dependencies**
    ```bash
-   pip install bleak python-osc numpy pyaudio sounddevice scipy scikit-learn librosa matplotlib psutil numpy-stl
+   pip install -r requirements.txt
    ```
 
-2. **Run the Application**
+3. **Run the Application**
    ```bash
+   cd Bridge
    python testing_file_floating_calibration_NIME_CPU.py
    ```
 
-3. **Basic Setup**
+4. **Basic Setup**
    - **Add OSC Destinations**: specify target ports (e.g., 6448 for Wekinator).
    - **Scan and Connect**: find and connect to Metabow devices.
    - **Configure Audio Features**: enable desired audio feature extraction.
    - **Set up IMU Processing**: configure axis calibration and smoothing if needed.
 
-4. **Advanced Configuration**
+5. **Advanced Configuration**
    - **Audio Features**: open "Feature Extraction" to configure MFCC, spectral features, etc.
    - **IMU Calibration**: use "Axis Calibration" for 3D visualization and orientation mapping.
    - **Data Logging**: enable "Save JSON" to capture all OSC data for analysis.
