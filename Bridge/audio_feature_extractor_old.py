@@ -63,8 +63,6 @@ class RealTimeAudioFeatureExtractor:
         # 1. Spectral Features
         spectral_features = [
             ("mfcc", "MFCC", {"n_mfcc": 13}),
-            ("mel_spectrogram", "Mel Spectrogram", {"n_mels": 128}),
-            ("log_mel_spectrogram", "Log Mel Spectrogram", {"n_mels": 128}),
             ("spectral_centroid", "Spectral Centroid", {}),
             ("spectral_bandwidth", "Spectral Bandwidth", {}),
             ("spectral_contrast", "Spectral Contrast", {"n_bands": 6}),
@@ -241,25 +239,6 @@ class RealTimeAudioFeatureExtractor:
                     hop_length=self.hop_length
                 )
                 return np.mean(mfccs, axis=1).tolist()
-
-            elif feature_name == "mel_spectrogram":
-                S_mel = librosa.feature.melspectrogram(
-                    y=audio_frame, 
-                    sr=self.sample_rate, 
-                    n_mels=params.get("n_mels", 128),
-                    hop_length=self.hop_length
-                )
-                return np.mean(S_mel, axis=1).tolist()
-
-            elif feature_name == "log_mel_spectrogram":
-                S_mel = librosa.feature.melspectrogram(
-                    y=audio_frame, 
-                    sr=self.sample_rate, 
-                    n_mels=params.get("n_mels", 128),
-                    hop_length=self.hop_length
-                )
-                S_mel_log = librosa.power_to_db(S_mel, ref=np.max)
-                return np.mean(S_mel_log, axis=1).tolist()
             
             elif feature_name == "spectral_centroid":
                 centroid = librosa.feature.spectral_centroid(
