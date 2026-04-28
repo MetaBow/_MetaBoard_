@@ -70,6 +70,7 @@ class RealTimeAudioFeatureExtractor:
             ("spectral_contrast", "Spectral Contrast", {"n_bands": 6}),
             ("spectral_flatness", "Spectral Flatness", {}),
             ("spectral_rolloff", "Spectral Rolloff", {"roll_percent": 0.85}),
+            ("deciminated_fft", "Decimated FFT", {"decimation_factor": 8}),
         ]
         
         for name, display_name, params in spectral_features:
@@ -301,6 +302,12 @@ class RealTimeAudioFeatureExtractor:
                     hop_length=self.hop_length
                 )
                 return float(np.mean(rolloff))
+
+            elif feature_name == "deciminated_fft":
+                fft = np.fft.rfft(audio_frame, n=512)
+                magnitude = np.abs(fft)
+                decimated = magnitude[::params.get("decimation_factor", 8)]
+                return decimated.tolist()
             
             # Pitch Features
             elif feature_name == "pyin":
