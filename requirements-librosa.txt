@@ -1,0 +1,7 @@
+# Optional: realtime ML features (requires librosa → numba → llvmlite).
+# If pip fails building llvmlite: `brew install llvm` and retry, or use prebuilt wheels only:
+#   pip install 'llvmlite>=0.44' --only-binary llvmlite
+# Install base deps first: pip install -r requirements.txt
+
+librosa>=0.11.0
+pyaudio>=0.2.14

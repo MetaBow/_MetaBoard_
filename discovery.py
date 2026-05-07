@@ -192,7 +192,7 @@ class MetaBoardBridge(tk.Tk):
         self._client    = None
         self._connected = False
         self._decoder   = ADPCMDecoder()
-        self._data_q    : queue.Queue = queue.Queue(maxsize=300)
+        self._data_q    : queue.Queue = queue.Queue(maxsize=5000) # previously 300
 
         # packet stats
         self._total_pkts  = 0
@@ -203,6 +203,7 @@ class MetaBoardBridge(tk.Tk):
         # recording
         self._recording   = False
         self._rec_pcm     : list = []     # flat list of int16
+        self._rec_wall_t0 = None  # wall time.time() when recording started
 
         # oscilloscope ring buffer (~200 ms of audio)
         self._wave_buf = deque(maxlen=SAMPLE_RATE // 5)
@@ -521,7 +522,7 @@ class MetaBoardBridge(tk.Tk):
     _drops = 0
 
     def _poll_queue(self):
-        limit = 12   # max packets per frame to avoid starving tkinter
+        limit = 96   # drain BLE backlog; was 12 (underruns → sparse WAV → fast playback @ 16 kHz header)
         processed = 0
         while processed < limit:
             try:
@@ -671,6 +672,7 @@ class MetaBoardBridge(tk.Tk):
             return
         self._rec_pcm.clear()
         self._recording = True
+        self._rec_wall_t0 = time.time()
         self._rec_btn.config( state="disabled")
         self._stop_btn.config(state="normal")
         self._save_btn.config(state="disabled")
@@ -681,9 +683,25 @@ class MetaBoardBridge(tk.Tk):
         self._recording = False
         self._stop_btn.config(state="disabled")
         n_samples = len(self._rec_pcm)
+        wall_s = None
+        if self._rec_wall_t0 is not None:
+            wall_s = max(1e-9, time.time() - self._rec_wall_t0)
+        self._rec_wall_t0 = None
         if n_samples > 0:
             dur = n_samples / SAMPLE_RATE
-            self._log(f"Recording stopped — {n_samples} samples  ({dur:.2f} s).")
+            self._log(f"Recording stopped — {n_samples} samples  ({dur:.2f} s WAV @ {SAMPLE_RATE} Hz).")
+            if wall_s is not None:
+                eff = n_samples / wall_s
+                ratio = SAMPLE_RATE / eff if eff > 0 else 0
+                if ratio > 1.05:
+                    self._log(
+                        f"⚠ Wall time ~{wall_s:.2f} s → ~{eff:.0f} samples/s delivered "
+                        f"(~{ratio:.2f}× faster playback than real time). BLE drops / queue full?"
+                    )
+                else:
+                    self._log(
+                        f"Wall duration ~{wall_s:.2f} s · effective delivery ~{eff:.0f} samples/s (nominal {SAMPLE_RATE})."
+                    )
             self._save_btn.config(state="normal")
         else:
             self._log("Recording stopped — no samples captured.")

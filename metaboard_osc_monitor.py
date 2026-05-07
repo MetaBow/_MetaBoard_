@@ -310,6 +310,11 @@ class MetaBoardOSCMonitor:
         self.log_file: Optional[Path] = None
         self.csv_writer = None
         self.csv_file = None
+        # Recording take (WAV + logs under a user-chosen parent folder)
+        self.recording_parent_dir: Optional[Path] = None
+        self._recording_take_folder: Optional[Path] = None
+        self._logging_path_before_take: Optional[Path] = None
+        self._logging_was_enabled_before_take = False
 
         # Modular audio pipeline (metabow.audio) — optional; toggles in UI
         self.audio_subsystem: Optional[AudioSubsystem] = None
@@ -383,27 +388,43 @@ class MetaBoardOSCMonitor:
                        command=self.toggle_logging).pack(side=tk.LEFT, padx=5)
         ttk.Button(status_frame, text="Choose Log File", command=self.choose_log_file).pack(side=tk.LEFT, padx=5)
 
-        # Modular audio (features / WAV+ADPCM / VB-Cable) — active while connected
-        # ML feature extraction (librosa) is always enabled on connect; no separate toggle.
-        audio_frame = ttk.LabelFrame(self.root, text="Audio options (enable before Connect)", padding="8")
+        # Modular audio (features / VB-Cable + on-demand recording while connected)
+        # ML feature extraction (librosa) is always enabled on connect when available.
+        audio_frame = ttk.LabelFrame(self.root, text="Audio & recording", padding="8")
         audio_frame.pack(fill=tk.X, padx=10, pady=(0, 4))
-        self.audio_var_record = tk.BooleanVar(value=False)
         self.audio_var_vb = tk.BooleanVar(value=False)
         ttk.Checkbutton(
             audio_frame,
-            text="Record WAV + ADPCM",
-            variable=self.audio_var_record,
-        ).pack(side=tk.LEFT, padx=(0, 12))
-        ttk.Checkbutton(
-            audio_frame,
-            text="Stream → VB-Cable (44.1 kHz)",
+            text="Stream → VB-Cable (44.1 kHz, set before Connect)",
             variable=self.audio_var_vb,
         ).pack(side=tk.LEFT, padx=(0, 12))
+        ttk.Button(
+            audio_frame,
+            text="Choose save folder…",
+            command=self.choose_recording_parent_folder,
+        ).pack(side=tk.LEFT, padx=(0, 8))
+        self.recording_folder_var = tk.StringVar(value="No folder selected (prompted on Start)")
         ttk.Label(
             audio_frame,
-            text="ML features (librosa) extracted automatically. WAV → ~/Documents/MetaBow_Data",
+            textvariable=self.recording_folder_var,
             foreground="gray",
-        ).pack(side=tk.LEFT, padx=(8, 0))
+        ).pack(side=tk.LEFT, padx=(0, 12))
+        rec_btns = ttk.Frame(audio_frame)
+        rec_btns.pack(side=tk.LEFT, padx=(8, 0))
+        self.record_start_btn = ttk.Button(
+            rec_btns,
+            text="Start recording",
+            command=self.start_recording_take_ui,
+            state=tk.DISABLED,
+        )
+        self.record_start_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self.record_stop_btn = ttk.Button(
+            rec_btns,
+            text="Stop recording",
+            command=self.stop_recording_take_ui,
+            state=tk.DISABLED,
+        )
+        self.record_stop_btn.pack(side=tk.LEFT)
         
         # Main content: Split into left (stats) and right (graphs)
         main_frame = ttk.Frame(self.root)
@@ -463,6 +484,119 @@ class MetaBoardOSCMonitor:
             self.log_file = Path(filename)
             self.logging_var.set(True)
             self.toggle_logging()
+
+    def choose_recording_parent_folder(self) -> None:
+        """Remember parent directory for recording takes (same idea as picking a save location)."""
+        path = filedialog.askdirectory(title="Choose folder for recording takes")
+        if path:
+            self.recording_parent_dir = Path(path)
+            self.recording_folder_var.set(str(self.recording_parent_dir))
+
+    def _recording_file_basename(self) -> str:
+        """Match discovery.py default WAV stem: metaboard_YYYYMMDD_HHMMSS."""
+        return f"metaboard_{datetime.now():%Y%m%d_%H%M%S}"
+
+    def start_recording_take_ui(self) -> None:
+        if not self.connected or self.audio_subsystem is None:
+            messagebox.showwarning("Recording", "Connect to a device first.")
+            return
+        if self.audio_subsystem.recorder.recording:
+            return
+
+        parent = self.recording_parent_dir
+        if parent is None:
+            picked = filedialog.askdirectory(title="Choose folder for recording takes")
+            if not picked:
+                return
+            parent = Path(picked)
+            self.recording_parent_dir = parent
+            self.recording_folder_var.set(str(parent))
+
+        basename = self._recording_file_basename()
+        take_folder = parent / basename
+        try:
+            take_folder.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            messagebox.showerror(
+                "Recording",
+                f"A folder named “{basename}” already exists in this location.\n"
+                "Choose another parent folder or wait until the clock advances.",
+            )
+            return
+        except OSError as exc:
+            messagebox.showerror("Recording", f"Could not create folder:\n{exc}")
+            return
+
+        self._logging_was_enabled_before_take = self.logging_enabled
+        self._logging_path_before_take = self.log_file if self.logging_enabled else None
+        if self.logging_enabled:
+            self.stop_logging()
+
+        self.log_file = take_folder / "session.csv"
+        self.start_logging()
+
+        err: Optional[str] = None
+        with self._packet_state_lock:
+            try:
+                self.audio_subsystem.start_recording_take(str(take_folder), basename)
+            except Exception as exc:
+                err = str(exc)
+
+        if err is not None:
+            self.stop_logging()
+            self.log_file = None
+            if self._logging_was_enabled_before_take and self._logging_path_before_take is not None:
+                self.log_file = self._logging_path_before_take
+                self.start_logging()
+            self._logging_was_enabled_before_take = False
+            self._logging_path_before_take = None
+            try:
+                take_folder.rmdir()
+            except OSError:
+                pass
+            messagebox.showerror("Recording", err)
+            return
+
+        self.logging_var.set(True)
+        self._recording_take_folder = take_folder
+        self.record_start_btn.config(state=tk.DISABLED)
+        self.record_stop_btn.config(state=tk.NORMAL)
+        self.status_var.set(f"Recording → {basename}")
+
+    def stop_recording_take_ui(self) -> None:
+        if self.audio_subsystem is None or not self.audio_subsystem.recorder.recording:
+            self.record_start_btn.config(state=tk.NORMAL if self.connected else tk.DISABLED)
+            self.record_stop_btn.config(state=tk.DISABLED)
+            self._recording_take_folder = None
+            if self.connected:
+                self.status_var.set("Connected")
+            return
+
+        take_folder = self._recording_take_folder
+        with self._packet_state_lock:
+            self.audio_subsystem.stop_recording_take()
+
+        self.stop_logging()
+        self.log_file = None
+
+        if self._logging_was_enabled_before_take and self._logging_path_before_take is not None:
+            self.log_file = self._logging_path_before_take
+            self.start_logging()
+            self.logging_var.set(True)
+        else:
+            self.logging_var.set(False)
+
+        self._logging_was_enabled_before_take = False
+        self._logging_path_before_take = None
+        self._recording_take_folder = None
+
+        self.record_start_btn.config(state=tk.NORMAL if self.connected else tk.DISABLED)
+        self.record_stop_btn.config(state=tk.DISABLED)
+        if self.connected:
+            self.status_var.set("Connected")
+
+        dest = str(take_folder) if take_folder is not None else "take folder"
+        messagebox.showinfo("Recording", f"Recording stopped.\nSaved under:\n{dest}")
     
     def toggle_logging(self):
         """Enable/disable logging"""
@@ -578,10 +712,38 @@ class MetaBoardOSCMonitor:
         self.connect_btn.config(state=tk.NORMAL)
         self.disconnect_btn.config(state=tk.DISABLED)
         self.scan_btn.config(state=tk.NORMAL)
+        self.record_start_btn.config(state=tk.DISABLED)
+        self.record_stop_btn.config(state=tk.DISABLED)
 
     async def _disconnect_ble_transport(self) -> None:
         """Stop audio ingress, tear down BLE notify/session (runs on asyncio thread)."""
         self._audio_pipeline_accepting = False
+
+        take_was_active = False
+        with self._packet_state_lock:
+            if self.audio_subsystem is not None and self.audio_subsystem.recorder.recording:
+                take_was_active = True
+                self.audio_subsystem.stop_recording_take()
+        if take_was_active:
+            try:
+                self.stop_logging()
+            except Exception:
+                pass
+            self.log_file = None
+            if self._logging_was_enabled_before_take and self._logging_path_before_take is not None:
+                self.log_file = self._logging_path_before_take
+                try:
+                    self.start_logging()
+                except Exception:
+                    pass
+            self._logging_was_enabled_before_take = False
+            self._logging_path_before_take = None
+            self._recording_take_folder = None
+            try:
+                self.logging_var.set(bool(self.log_file and self.logging_enabled))
+            except tk.TclError:
+                pass
+
         self._stop_audio_subsystem()
         cl = self.client
         if cl is not None:
@@ -752,6 +914,8 @@ class MetaBoardOSCMonitor:
                     self.connect_btn.config(state=tk.DISABLED)
                     self.disconnect_btn.config(state=tk.NORMAL)
                     self.scan_btn.config(state=tk.DISABLED)
+                    self.record_start_btn.config(state=tk.NORMAL)
+                    self.record_stop_btn.config(state=tk.DISABLED)
 
                 self._tk_dispatch(_ok)
             else:
@@ -793,12 +957,13 @@ class MetaBoardOSCMonitor:
         rec_dir = os.path.expanduser("~/Documents/MetaBow_Data")
         cfg = AudioSubsystemConfig(
             enable_feature_extraction=True,
-            enable_recording=self.audio_var_record.get(),
+            enable_recording=False,
             enable_virtual_c_output=self.audio_var_vb.get(),
             session_id=self.session_id,
             session_clock_t0_wall=self.session_wall_start,
             session_clock_t0_mono=self.session_mono_t0,
             recording_directory=rec_dir,
+            write_alignment_log=False,
             on_feature_frame=self._on_ml_feature_frame,
         )
         try:
@@ -808,12 +973,13 @@ class MetaBoardOSCMonitor:
             self.audio_subsystem = AudioSubsystem(
                 AudioSubsystemConfig(
                     enable_feature_extraction=False,
-                    enable_recording=self.audio_var_record.get(),
+                    enable_recording=False,
                     enable_virtual_c_output=self.audio_var_vb.get(),
                     session_id=self.session_id,
                     session_clock_t0_wall=self.session_wall_start,
                     session_clock_t0_mono=self.session_mono_t0,
                     recording_directory=rec_dir,
+                    write_alignment_log=False,
                 )
             )
             self.root.after(

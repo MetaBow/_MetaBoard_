@@ -5,11 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional
 
-# ML pipeline defaults (documented for Gestura handoff)
+# ML pipeline defaults
 ML_FRAME_SIZE: int = 2048
 ML_HOP_LENGTH: int = 512
 
-# Hardware / bridge convention: decoded ADPCM → mono PCM at 16 kHz (see AUDIT.md).
+# Hardware / bridge convention: decoded ADPCM → mono PCM at 16 kHz.
 METABOW_AUDIO_SAMPLE_RATE_HZ: int = 16_000
 # VB-Audio virtual cable path expects host-rate PCM (matches PARALLELIZED mega-script).
 VIRTUAL_CABLE_OUTPUT_HZ: int = 44_100

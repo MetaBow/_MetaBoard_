@@ -88,22 +88,42 @@ class DecodedPcmRecorder:
     def recording(self) -> bool:
         return self._recording
 
-    def start(self, directory: Optional[str] = None) -> Optional[str]:
+    def start(
+        self,
+        directory: Optional[str] = None,
+        *,
+        basename: Optional[str] = None,
+    ) -> Optional[str]:
         if directory is None:
             directory = os.path.expanduser("~/Documents/MetaBow_Data")
         os.makedirs(directory, exist_ok=True)
-        ts = int(time.time())
-        prefix = f"{self._session_id}_" if self._session_id else ""
-        self.adpcm_path = os.path.join(directory, f"{prefix}adpcm_audio_{ts}.bin")
-        self.wav_path = os.path.join(directory, f"{prefix}decoded_audio_{ts}.wav")
-        manifest = {
-            "session_id": self._session_id,
-            "sample_rate_hz": self._framerate,
-            "started_wall_unix": time.time(),
-            "wav_basename": os.path.basename(self.wav_path) if self.wav_path else None,
-            "adpcm_basename": os.path.basename(self.adpcm_path) if self.adpcm_path else None,
-        }
-        man_path = os.path.join(directory, f"{prefix}session_manifest_{ts}.json")
+
+        if basename:
+            # Simplified filenames (e.g. metaboard_YYYYMMDD_HHMMSS.{wav,adpcm.bin})
+            self.wav_path = os.path.join(directory, f"{basename}.wav")
+            self.adpcm_path = os.path.join(directory, f"{basename}.adpcm.bin")
+            manifest = {
+                "session_id": self._session_id,
+                "sample_rate_hz": self._framerate,
+                "started_wall_unix": time.time(),
+                "basename": basename,
+                "wav_basename": os.path.basename(self.wav_path) if self.wav_path else None,
+                "adpcm_basename": os.path.basename(self.adpcm_path) if self.adpcm_path else None,
+            }
+            man_path = os.path.join(directory, "manifest.json")
+        else:
+            ts = int(time.time())
+            prefix = f"{self._session_id}_" if self._session_id else ""
+            self.adpcm_path = os.path.join(directory, f"{prefix}adpcm_audio_{ts}.bin")
+            self.wav_path = os.path.join(directory, f"{prefix}decoded_audio_{ts}.wav")
+            manifest = {
+                "session_id": self._session_id,
+                "sample_rate_hz": self._framerate,
+                "started_wall_unix": time.time(),
+                "wav_basename": os.path.basename(self.wav_path) if self.wav_path else None,
+                "adpcm_basename": os.path.basename(self.adpcm_path) if self.adpcm_path else None,
+            }
+            man_path = os.path.join(directory, f"{prefix}session_manifest_{ts}.json")
         try:
             with open(man_path, "w", encoding="utf-8") as mf:
                 json.dump(manifest, mf, indent=2)
