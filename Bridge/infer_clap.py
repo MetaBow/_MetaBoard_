@@ -34,10 +34,38 @@ HOP_SAMPLES = int(SAMPLE_RATE * HOP_SECONDS)
 
 # Edit these labels to match your classification task
 LABELS = [
-    "bowing a violin string",
-    "plucking a string",
-    "silence",
-    "background noise",
+    # --- Bowing quality ---
+    "smooth and resonant legato bow stroke on a violin",
+    "tense and scratchy bowing with too much bow pressure",
+    "shaky and uneven bow stroke with unstable wavering tone",
+    "slow and sustained bow stroke with full rich tone",
+    "fast and light spiccato bowing bouncing off the string",
+    "short and crisp staccato bow strokes",
+    "rapid tremolo bowing with quick back-and-forth strokes",
+    "loud and powerful forceful bow stroke at full volume",
+    "soft and delicate pianissimo bowing barely audible",
+    # --- Bow position / extended technique ---
+    "sul tasto flute-like breathy tone bowing over the fingerboard",
+    "sul ponticello bright glassy metallic tone bowing near the bridge",
+    "col legno tapping the string with the wood of the bow",
+    "natural harmonic producing a high clear ethereal tone",
+    "double stop bowing across two strings at once",
+    # --- Expressive / articulation ---
+    "expressive vibrato with warm oscillating pitch",
+    "clean and in-tune playing with steady stable pitch",
+    "out of tune playing with pitch drifting off center",
+    "accelerating run of notes played with the bow",
+    # --- Plucking ---
+    "light pizzicato plucking on a string instrument",
+    "strong loud pizzicato pluck on a string",
+    "snap pizzicato with string slapping against the fingerboard",
+    # --- Dynamics extremes ---
+    "extremely quiet playing almost inaudible",
+    "very loud and intense playing at maximum volume",
+    # --- Non-playing ---
+    "silence or no sound",
+    "ambient background noise in a room",
+    "bow rosin friction noise without a clear pitch",
 ]
 
 MODEL_NAME = "laion/clap-htsat-fused"
