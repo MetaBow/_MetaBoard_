@@ -10,11 +10,12 @@ LLM is called only when the top label changes, to avoid flooding a slow model.
 
 import threading
 import time
+import traceback
 import numpy as np
 import torch
 from scipy.signal import resample_poly
 from math import gcd
-from transformers import ClapModel, ClapProcessor, T5ForConditionalGeneration, T5Tokenizer
+from transformers import ClapModel, ClapProcessor, AutoModelForCausalLM, AutoTokenizer
 from pythonosc import dispatcher, osc_server
 
 # ---------------------------------------------------------------------------
@@ -69,7 +70,17 @@ LABELS = [
 ]
 
 CLAP_MODEL_NAME = "laion/clap-htsat-fused"
-LLM_MODEL_NAME = "google/flan-t5-small"   # ~300 MB, CPU-friendly
+# LLM_MODEL_NAME = "google/flan-t5-small"           # ~300 MB, seq2seq T5
+# LLM_MODEL_NAME = "microsoft/Phi-3-mini-4k-instruct"  # ~3.8B, float16 ~7.6 GB
+LLM_MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"   # ~1 GB float16, CPU-friendly
+
+SYSTEM_PROMPT = (
+    "You are a real-time music performance assistant. "
+    "You receive the output of a CLAP audio classification module that analyses a live musician's playing. "
+    "Your role is to give concise, actionable feedback on the playing technique or expression. "
+    "Always respond in a single short sentence (max 20 words). "
+    "Never repeat the label verbatim. Ignore background noise and silence."
+)
 
 # Min confidence to trigger LLM feedback (avoids feedback on ambiguous detections)
 FEEDBACK_THRESHOLD = 0.0   # disabled — rely on throttle alone
@@ -85,8 +96,13 @@ _clap_model.eval()
 print("[INFO] CLAP ready.")
 
 print(f"[INFO] Loading {LLM_MODEL_NAME} …")
-_llm_tokenizer = T5Tokenizer.from_pretrained(LLM_MODEL_NAME)
-_llm_model = T5ForConditionalGeneration.from_pretrained(LLM_MODEL_NAME)
+_llm_tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_NAME, trust_remote_code=True)
+_llm_model = AutoModelForCausalLM.from_pretrained(
+    LLM_MODEL_NAME,
+    torch_dtype=torch.float32,   # MPS crashes with float16 on this op — use CPU/float32
+    device_map="cpu",
+    trust_remote_code=True,
+)
 _llm_model.eval()
 print("[INFO] LLM ready.\n")
 
@@ -130,19 +146,29 @@ def _run_llm_feedback(label: str, confidence: float, all_scores: list[tuple[str,
     try:
         print(f"[LLM #{infer_count}] generating…", flush=True)
         with _llm_lock:
-            prompt = _build_prompt(label, confidence, all_scores)
-            inputs = _llm_tokenizer(prompt, return_tensors="pt", truncation=True, max_length=128)
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": _build_prompt(label, confidence, all_scores)},
+            ]
+            prompt_text = _llm_tokenizer.apply_chat_template(
+                messages, add_generation_prompt=True, tokenize=False
+            )
+            encoding = _llm_tokenizer(prompt_text, return_tensors="pt")
+            input_ids = encoding.input_ids.to(_llm_model.device)
+            attention_mask = encoding.attention_mask.to(_llm_model.device)
             with torch.no_grad():
                 output_ids = _llm_model.generate(
-                    **inputs,
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
                     max_new_tokens=60,
-                    num_beams=2,
-                    early_stopping=True,
+                    do_sample=False,
+                    pad_token_id=_llm_tokenizer.eos_token_id,
                 )
-            feedback = _llm_tokenizer.decode(output_ids[0], skip_special_tokens=True)
+            new_tokens = output_ids[0][input_ids.shape[1]:]
+            feedback = _llm_tokenizer.decode(new_tokens, skip_special_tokens=True)
             print(f"[LLM #{infer_count}] {feedback}\n", flush=True)
     except Exception as e:
-        print(f"[LLM ERROR] {e}", flush=True)
+        print(f"[LLM ERROR] {type(e).__name__}: {e}\n{traceback.format_exc()}", flush=True)
 
 # ---------------------------------------------------------------------------
 # CLAP inference
